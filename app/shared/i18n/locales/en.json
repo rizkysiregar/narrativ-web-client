@@ -341,5 +341,15 @@
   "share": {
     "copied": "Link copied",
     "copyFailed": "Could not copy the link"
+  },
+  "push": {
+    "label": "Notifications in this browser",
+    "turnOn": "Turn on",
+    "turnOff": "Turn off",
+    "enabled": "Notifications are on in this browser",
+    "unavailable": "Not available in this browser.",
+    "denied": "Blocked in the browser settings of this site. Allow notifications there to turn them on.",
+    "prompt": "Get notified in this browser when someone likes, comments or follows you, even with NARRATIV closed.",
+    "notNow": "Not now"
   }
 }

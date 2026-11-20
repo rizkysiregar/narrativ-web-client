@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import { useLogout } from "~/features/auth";
+import { PushToggle } from "~/features/push";
 import { LANDING_URL } from "~/shared/config/env";
 import { LanguageSwitcher } from "~/shared/layout/language-switcher";
 
@@ -45,6 +46,10 @@ export function SettingsMenu() {
         <Row to="/settings/blocked">{t("settings.blocked")}</Row>
       </ul>
       <h2 className="px-4 pt-6 pb-2 text-sm font-semibold text-muted">{t("settings.app")}</h2>
+      <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-3">
+        <span>{t("push.label")}</span>
+        <PushToggle />
+      </div>
       <div className="flex items-center justify-between border-b border-line px-4 py-3">
         <span>{t("language.label")}</span>
         <LanguageSwitcher />

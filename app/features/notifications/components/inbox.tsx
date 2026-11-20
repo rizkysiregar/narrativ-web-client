@@ -1,4 +1,5 @@
 import { CheckCheck } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
@@ -12,7 +13,8 @@ import { EmptyState, QueryState } from "~/shared/ui/query-state";
 
 import { useInbox, useMarkAllRead, useMarkRead, type Notification } from "../api";
 
-export function Inbox() {
+/** `prompt`: shown above the entries (the push offer; the route brings it, this feature does not know push). */
+export function Inbox({ prompt }: { prompt?: ReactNode }) {
   const { t } = useTranslation();
   const query = useInbox();
   const markAll = useMarkAllRead();
@@ -38,6 +40,7 @@ export function Inbox() {
           </div>
         )}
       </PageHeader>
+      {prompt}
       {!query.data ? (
         <QueryState error={query.error} onRetry={() => void query.refetch()} />
       ) : entries.length === 0 ? (

@@ -1,0 +1,142 @@
+import { getApps, initializeApp, type FirebaseApp } from "@firebase/app";
+import { deleteToken, getMessaging, getToken, onMessage, type Messaging } from "@firebase/messaging";
+
+import { api } from "~/api/client";
+import { request } from "~/api/errors";
+import type { Schemas } from "~/api/types";
+import { APP_VERSION } from "~/shared/config/env";
+import { currentLanguage } from "~/shared/i18n";
+import { readPreference, writePreference } from "~/shared/lib/storage";
+
+export type WebPushConfig = Schemas["WebPushConfigResponse"];
+
+// the token this browser registered with the backend, to deactivate it on sign-out or when push is turned off
+const TOKEN_KEY = "narrativ.pushToken";
+// a random id of this browser, so the backend sees one device however often its token rotates
+const DEVICE_KEY = "narrativ.deviceId";
+const APP_NAME = "narrativ-push";
+
+export type PushState = "unsupported" | "denied" | "off" | "on";
+
+export function pushState(): PushState {
+  if (
+    typeof window === "undefined" ||
+    !("serviceWorker" in navigator) ||
+    !("PushManager" in window) ||
+    !("Notification" in window)
+  ) {
+    return "unsupported";
+  }
+  if (Notification.permission === "denied") {
+    return "denied";
+  }
+  return Notification.permission === "granted" && readPreference(TOKEN_KEY) !== null ? "on" : "off";
+}
+
+function firebaseConfig(config: WebPushConfig) {
+  return {
+    apiKey: config.apiKey ?? "",
+    projectId: config.projectId ?? "",
+    messagingSenderId: config.messagingSenderId ?? "",
+    appId: config.appId ?? "",
+  };
+}
+
+function messaging(config: WebPushConfig): Messaging {
+  const app: FirebaseApp =
+    getApps().find((existing) => existing.name === APP_NAME) ??
+    initializeApp(firebaseConfig(config), APP_NAME);
+  return getMessaging(app);
+}
+
+function deviceId(): string {
+  const known = readPreference(DEVICE_KEY);
+  if (known) {
+    return known;
+  }
+  const created = crypto.randomUUID();
+  writePreference(DEVICE_KEY, created);
+  return created;
+}
+
+/**
+ * Gets this browser's push token from Firebase (through the service worker) and registers it with the backend.
+ *
+ * getToken/deleteToken are deprecated in favour of Firebase Installation ID registration (register/onRegistered),
+ * which the backend would have to target differently. The backend and the Android app send to FCM registration
+ * tokens, so the web does the same until both move to FID together (noted in docs/PLAN.md).
+ */
+async function registerToken(config: WebPushConfig): Promise<void> {
+  const registration = await navigator.serviceWorker.register(
+    `/firebase-messaging-sw.js?config=${encodeURIComponent(JSON.stringify(firebaseConfig(config)))}`,
+  );
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- see the comment above
+  const token = await getToken(messaging(config), {
+    vapidKey: config.vapidKey ?? "",
+    serviceWorkerRegistration: registration,
+  });
+  await request(
+    api.POST("/devices", {
+      body: {
+        pushToken: token,
+        platform: "WEB",
+        deviceId: deviceId(),
+        appVersion: APP_VERSION,
+        locale: currentLanguage(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+    }),
+  );
+  writePreference(TOKEN_KEY, token);
+}
+
+export class PushPermissionError extends Error {
+  override readonly name = "PushPermissionError";
+}
+
+/** Asks the browser for permission (only ever after the user asked for it) and turns push on. */
+export async function enablePush(config: WebPushConfig): Promise<void> {
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") {
+    throw new PushPermissionError(permission);
+  }
+  await registerToken(config);
+}
+
+/**
+ * At start-up, where push is on: tokens rotate, so the current one is registered again (the backend updates the
+ * device). Never asks for permission.
+ */
+export async function syncPush(config: WebPushConfig): Promise<void> {
+  if (pushState() === "on") {
+    await registerToken(config);
+  }
+}
+
+/** Stops push for this browser: the backend deactivates the token, Firebase forgets it. Never fails. */
+export async function disablePush(config?: WebPushConfig): Promise<void> {
+  const token = readPreference(TOKEN_KEY);
+  if (token === null) {
+    return;
+  }
+  await request(api.POST("/devices/deactivate", { body: { pushToken: token } })).catch(() => undefined);
+  if (config?.enabled) {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- see registerToken
+    await deleteToken(messaging(config)).catch(() => false);
+  }
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // nothing stored to remove
+  }
+}
+
+/** Pushes that arrive while a tab of the app is in front (Firebase shows only the others). */
+export function onForegroundPush(
+  config: WebPushConfig,
+  handle: (title: string, body: string) => void,
+): () => void {
+  return onMessage(messaging(config), (payload) => {
+    handle(payload.notification?.title ?? "", payload.notification?.body ?? "");
+  });
+}

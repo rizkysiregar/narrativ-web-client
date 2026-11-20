@@ -3,3 +3,4 @@ build
 coverage
 package-lock.json
 app/api/schema.d.ts
+public/firebase-messaging-sw.js
