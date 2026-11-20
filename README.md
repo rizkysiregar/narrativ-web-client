@@ -7,19 +7,19 @@ The development plan, its phases and their progress live in [docs/PLAN.md](docs/
 
 ## Tech stack
 
-| Area         | Technology                                                                   |
-| ------------ | ---------------------------------------------------------------------------- |
-| Runtime      | Node 24 LTS (`.tool-versions`)                                               |
-| Framework    | React 19, React Router 8 (framework mode, SPA for now), Vite 8               |
-| Language     | TypeScript 6, strict                                                         |
-| API          | `openapi-fetch` with types generated from the backend's OpenAPI document     |
-| Server state | TanStack Query 5                                                             |
-| Client state | Zustand (session only)                                                       |
-| Styling      | Tailwind CSS 4, the app's dark palette and Bricolage Grotesque               |
-| i18n         | i18next (Indonesian, English)                                                |
-| Tests        | Vitest, Testing Library, MSW                                                 |
-| Quality      | ESLint (typescript-eslint strict), Prettier, Husky + lint-staged             |
-| Delivery     | nginx image, Jenkins, Argo CD (`homelabs-gitops/apps/narrativ-web-client-*`) |
+| Area         | Technology                                                               |
+| ------------ | ------------------------------------------------------------------------ |
+| Runtime      | Node 24 LTS (`.tool-versions`)                                           |
+| Framework    | React 19, React Router 8 (framework mode, server rendering), Vite 8      |
+| Language     | TypeScript 6, strict                                                     |
+| API          | `openapi-fetch` with types generated from the backend's OpenAPI document |
+| Server state | TanStack Query 5                                                         |
+| Client state | Zustand (session only)                                                   |
+| Styling      | Tailwind CSS 4, the app's dark palette and Bricolage Grotesque           |
+| i18n         | i18next (Indonesian, English)                                            |
+| Tests        | Vitest, Testing Library, MSW                                             |
+| Quality      | ESLint (typescript-eslint strict), Prettier, Husky + lint-staged         |
+| Delivery     | Node image (react-router-serve), Jenkins, Argo CD (`homelabs-gitops`)    |
 
 ## Getting started
 
@@ -31,14 +31,15 @@ npm run dev             # http://localhost:3000, /api proxied to the dev backend
 
 `.env.example` lists the optional settings (another backend, another port). Copy it to `.env.local`.
 
-| Script                 | What it does                                                       |
-| ---------------------- | ------------------------------------------------------------------ |
-| `npm run dev`          | Dev server with hot reload                                         |
-| `npm run build`        | Production build to `build/client` plus `build/nginx` (CSP header) |
-| `npm run verify`       | Prettier check, ESLint, typecheck and unit tests (what CI runs)    |
-| `npm test`             | Unit tests once (`test:watch` to keep them running)                |
-| `npm run api:generate` | Regenerates `app/api/schema.d.ts` from the dev backend's OpenAPI   |
-| `npm run api:check`    | Fails when `schema.d.ts` differs from what the backend serves      |
+| Script                 | What it does                                                     |
+| ---------------------- | ---------------------------------------------------------------- |
+| `npm run dev`          | Dev server with hot reload                                       |
+| `npm run build`        | Production build to `build/client` and `build/server`            |
+| `npm start`            | Serves the build (server rendering) on `PORT`, default 3000      |
+| `npm run verify`       | Prettier check, ESLint, typecheck and unit tests (what CI runs)  |
+| `npm test`             | Unit tests once (`test:watch` to keep them running)              |
+| `npm run api:generate` | Regenerates `app/api/schema.d.ts` from the dev backend's OpenAPI |
+| `npm run api:check`    | Fails when `schema.d.ts` differs from what the backend serves    |
 
 ## How it talks to the backend
 
@@ -59,6 +60,14 @@ npm run dev             # http://localhost:3000, /api proxied to the dev backend
 - Every call sends `X-Client-Platform: web`, `X-App-Version` and `Accept-Language`, so the backend answers in the
   user's language.
 
+## Shared links and server rendering
+
+Posts (`/p/:postId`) and profiles (`/u/:username`) can be shared. Their route loaders run on the server: they read the
+backend's public endpoints (`/public/**`) inside the cluster, passing on the visitor's `CF-Connecting-IP` so the
+backend's rate limit counts the visitor, and answer link preview crawlers with Open Graph and Twitter tags. A visitor
+without a session sees a public preview with a way to sign in; a signed-in user gets the full page. Everything else
+renders in the browser: the app layouts render the start-up screen on the server (`clientLoader.hydrate`).
+
 ## Project structure
 
 ```
@@ -68,8 +77,9 @@ app/
   api/                  generated schema, typed client, session and refresh, errors
   features/<name>/      one folder per feature (auth, feed, post, ...): api.ts hooks, components, schemas
   shared/               config, i18n, layout, ui primitives, hooks, lib
-scripts/                OpenAPI type generation, CSP header generation
-nginx/                  server config of the image
+  server/               server-only config and the security headers of rendered pages
+  entry.server.tsx      server rendering with a CSP nonce per response
+scripts/                OpenAPI type generation
 ```
 
 Rules: components never call `fetch` or the client directly but use the hooks in `features/<name>/api.ts`; server
@@ -82,6 +92,12 @@ Every push to `main` runs the `Jenkinsfile`: verify, API contract check (marks t
 moved on), build, image `ghcr.io/rizkysiregar/narrativ-web-client:<sha>`, and a commit of the new tag to
 `homelabs-gitops/apps/narrativ-web-client-dev`, which Argo CD syncs to `https://app-dev-narrativ.rizkysiregar.my.id`.
 
-The image is nginx serving `build/client` with an SPA fallback, `/healthz` for the probes and security headers. The
-Content-Security-Policy allows React Router's inline start-up scripts by their SHA-256 hash, computed at build time
-by `scripts/csp.mjs`, so scripts need no `'unsafe-inline'`.
+The image runs `react-router-serve` (Node 24) on port 8080, with `/healthz` for the probes. Every page response gets
+its own CSP nonce for React Router's inline scripts (`app/entry.server.tsx`), so scripts need no `'unsafe-inline'`.
+
+| Env var                                  | Meaning                                                                                              |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `API_INTERNAL_URL`                       | The backend inside the cluster, e.g. `http://narrativ-service.narrativ-dev.svc.cluster.local/api/v1` |
+| `APP_ORIGIN`                             | Public address of the app, for absolute links in previews                                            |
+| `ALLOW_INDEXING`                         | `true` only in production: robots.txt opens shared links, no `X-Robots-Tag`                          |
+| `ANDROID_PACKAGE`, `ANDROID_CERT_SHA256` | Serve `/.well-known/assetlinks.json` (App Links), fingerprints comma separated                       |

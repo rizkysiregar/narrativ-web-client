@@ -1,10 +1,17 @@
 # Plain Dockerfile syntax only: the Jenkins agent builds with the legacy builder.
-# build/ is made beforehand by the Jenkins "Build" stage (npm run build); the image only serves files.
-# The API base path is relative (/api/v1), so the same image runs in every environment.
-FROM docker.io/nginxinc/nginx-unprivileged:1.27-alpine
+# build/ is made beforehand by the Jenkins "Build" stage (npm run build); the image installs the production
+# dependencies and runs the server render with react-router-serve. The API base path is relative (/api/v1), so the
+# same image runs in every environment; the environment comes in through env vars (see README).
+FROM docker.io/library/node:24-alpine
 
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY build/nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
-COPY build/client/ /usr/share/nginx/html/
+ENV NODE_ENV=production \
+    PORT=8080
 
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY build ./build
+
+USER node
 EXPOSE 8080
+CMD ["node_modules/.bin/react-router-serve", "./build/server/index.js"]

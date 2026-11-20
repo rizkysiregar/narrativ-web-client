@@ -2,21 +2,51 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
 import { ApiError } from "~/api/errors";
+import { useSession } from "~/api/session";
 import { CommentSection } from "~/features/comments";
 import { PostCard, usePost } from "~/features/posts";
-import { APP_NAME } from "~/shared/config/env";
+import { postMeta, PublicPostPreview } from "~/features/share";
+import { fetchPublicPost } from "~/features/share/public-api.server";
+import { publicOrigin } from "~/server/config.server";
 import { PageHeader } from "~/shared/ui/page-header";
 import { PageMessage } from "~/shared/ui/page-message";
 import { QueryState } from "~/shared/ui/query-state";
 
+import type { ShellHandle } from "./shell";
 import type { Route } from "./+types/post";
 
-export const meta: Route.MetaFunction = () => [{ title: `Post · ${APP_NAME}` }];
+export const handle: ShellHandle = { publicPreview: true };
 
-export default function PostPage({ params }: Route.ComponentProps) {
+/**
+ * On the server, for a shared link: the public version of the post, for the link preview tags (Open Graph) and for
+ * a visitor without a session.
+ */
+export async function loader({ request, params }: Route.LoaderArgs) {
+  return { post: await fetchPublicPost(request, params.postId), origin: publicOrigin(request) };
+}
+
+// navigating inside the app needs no preview data: the signed-in page loads the post itself
+export function clientLoader() {
+  return null;
+}
+
+export const meta: Route.MetaFunction = ({ loaderData, location }) =>
+  postMeta(loaderData?.post ?? null, loaderData?.origin ?? "", location.pathname);
+
+export default function PostPage({ params, loaderData }: Route.ComponentProps) {
+  const signedIn = useSession((state) => state.status === "authenticated");
+
+  return signedIn ? (
+    <PostView postId={params.postId} />
+  ) : (
+    <PublicPostPreview post={loaderData?.post ?? null} />
+  );
+}
+
+function PostView({ postId }: { postId: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const post = usePost(params.postId);
+  const post = usePost(postId);
 
   return (
     <>

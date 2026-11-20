@@ -1,9 +1,24 @@
 import { Navigate, Outlet, useSearchParams } from "react-router";
 
-import { useSession } from "~/api/session";
+import { restoreSession, useSession } from "~/api/session";
 import { safeRedirect } from "~/shared/lib/safe-redirect";
 import { LanguageSwitcher } from "~/shared/layout/language-switcher";
 import { Logo } from "~/shared/ui/logo";
+import { Splash } from "~/shared/ui/splash";
+
+/**
+ * Before the layout first renders in the browser (the server renders the start-up screen meanwhile): whether the
+ * refresh cookie still holds a session. A no-op once the session is known.
+ */
+export async function clientLoader() {
+  await restoreSession();
+  return null;
+}
+clientLoader.hydrate = true as const;
+
+export function HydrateFallback() {
+  return <Splash />;
+}
 
 export default function GuestLayout() {
   const status = useSession((state) => state.status);

@@ -2,26 +2,52 @@ import { useTranslation } from "react-i18next";
 import { NavLink, Outlet } from "react-router";
 
 import { ApiError } from "~/api/errors";
+import { useSession } from "~/api/session";
+import { profileMeta, PublicProfilePreview } from "~/features/share";
+import { fetchPublicProfile } from "~/features/share/public-api.server";
 import { ProfileHeader, useUserByUsername } from "~/features/users";
-import { APP_NAME } from "~/shared/config/env";
+import { publicOrigin } from "~/server/config.server";
 import { cn } from "~/shared/lib/cn";
 import { PageHeader } from "~/shared/ui/page-header";
 import { PageMessage } from "~/shared/ui/page-message";
 import { QueryState } from "~/shared/ui/query-state";
 
+import type { ShellHandle } from "./shell";
 import type { Route } from "./+types/profile";
 
-export const meta: Route.MetaFunction = ({ params }) => [{ title: `@${params.username} · ${APP_NAME}` }];
+export const handle: ShellHandle = { publicPreview: true };
+
+/** On the server, for a shared link: the public profile, for the link preview tags and for a visitor. */
+export async function loader({ request, params }: Route.LoaderArgs) {
+  return { profile: await fetchPublicProfile(request, params.username), origin: publicOrigin(request) };
+}
+
+export function clientLoader() {
+  return null;
+}
+
+export const meta: Route.MetaFunction = ({ loaderData, location }) =>
+  profileMeta(loaderData?.profile ?? null, loaderData?.origin ?? "", location.pathname);
+
+export default function Profile({ params, loaderData }: Route.ComponentProps) {
+  const signedIn = useSession((state) => state.status === "authenticated");
+
+  return signedIn ? (
+    <ProfileView username={params.username} />
+  ) : (
+    <PublicProfilePreview profile={loaderData?.profile ?? null} />
+  );
+}
 
 /** A user's profile: the header, then the posts or media tab (the nested route). */
-export default function Profile({ params }: Route.ComponentProps) {
+function ProfileView({ username }: { username: string }) {
   const { t } = useTranslation();
-  const user = useUserByUsername(params.username);
+  const user = useUserByUsername(username);
 
   if (!user.data) {
     return (
       <>
-        <PageHeader title={`@${params.username}`} back />
+        <PageHeader title={`@${username}`} back />
         {user.error instanceof ApiError && user.error.status === 404 ? (
           <PageMessage title={t("profile.notFound")} body={t("profile.notFoundBody")} />
         ) : (
@@ -38,7 +64,7 @@ export default function Profile({ params }: Route.ComponentProps) {
     );
   return (
     <>
-      <PageHeader title={`@${user.data.username ?? params.username}`} back />
+      <PageHeader title={`@${user.data.username ?? username}`} back />
       <ProfileHeader user={user.data} />
       <nav aria-label={t("profile.tabs")} className="flex border-b border-line">
         <NavLink to="." end className={tab}>

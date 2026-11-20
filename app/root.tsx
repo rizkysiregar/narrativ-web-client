@@ -7,13 +7,10 @@ import { useTranslation } from "react-i18next";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { Toaster } from "sonner";
 
-import { restoreSession } from "~/api/session";
 import { APP_NAME } from "~/shared/config/env";
 import { createQueryClient } from "~/shared/lib/query-client";
 import { Button } from "~/shared/ui/button";
-import { LogoMark } from "~/shared/ui/logo";
 import { PageMessage } from "~/shared/ui/page-message";
-import { Spinner } from "~/shared/ui/spinner";
 
 import type { Route } from "./+types/root";
 
@@ -30,21 +27,9 @@ export const links: Route.LinksFunction = () => [
   { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
 ];
 
-/**
- * Runs once before the first render (the start-up screen shows meanwhile): whether the refresh cookie still holds a
- * session decides between the app and the sign-in page.
- */
-export async function clientLoader() {
-  await restoreSession();
-  return null;
-}
-
-// the session is tracked in memory afterwards; navigating must not repeat the start-up refresh
-export const shouldRevalidate = () => false;
-
 export function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -70,18 +55,6 @@ export default function App() {
       <Outlet />
       <Toaster theme="dark" position="top-center" />
     </QueryClientProvider>
-  );
-}
-
-/** Shown while the app starts (SPA mode renders this into index.html). */
-export function HydrateFallback() {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-6">
-      <LogoMark className="h-14" />
-      <Spinner label={t("app.loading")} />
-    </div>
   );
 }
 

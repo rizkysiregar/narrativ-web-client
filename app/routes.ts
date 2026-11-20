@@ -1,13 +1,17 @@
 import { index, layout, route, type RouteConfig } from "@react-router/dev/routes";
 
 export default [
+  // resource routes: no page
+  route("healthz", "routes/healthz.ts"),
+  route("robots.txt", "routes/robots.ts"),
+  route(".well-known/assetlinks.json", "routes/assetlinks.ts"),
   // signed-out pages; a signed-in user is sent on to the app
   layout("routes/guest.tsx", [
     route("login", "routes/login.tsx"),
     route("register", "routes/register.tsx"),
     route("forgot-password", "routes/forgot-password.tsx"),
   ]),
-  // the app itself needs a session
+  // the app itself needs a session; shared posts and profiles show a public preview without one
   layout("routes/shell.tsx", [
     index("routes/home.tsx"),
     route("explore", "routes/explore.tsx"),

@@ -1146,6 +1146,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/public/posts/{postId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A post by its link, without signing in */
+        get: operations["publicPost"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/users/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A profile by its link, without signing in */
+        get: operations["publicProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/replies/{commentId}": {
         parameters: {
             query?: never;
@@ -2145,6 +2179,40 @@ export interface components {
             objectKey?: string;
             presignedUrl?: string;
             uploadForm?: components["schemas"]["PresignedUploadForm"];
+        };
+        PublicAuthor: {
+            avatarPath?: string;
+            fullName?: string;
+            username?: string;
+        };
+        PublicMedia: {
+            /** Format: uuid */
+            id?: string;
+            imagePath?: string;
+            /** @enum {string} */
+            type?: "IMAGE" | "VIDEO";
+        };
+        PublicPostResponse: {
+            author?: components["schemas"]["PublicAuthor"];
+            caption?: string;
+            /** Format: int64 */
+            commentCount?: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: uuid */
+            id?: string;
+            /** Format: int64 */
+            likeCount?: number;
+            media?: components["schemas"]["PublicMedia"][];
+        };
+        PublicProfileResponse: {
+            avatarPath?: string;
+            fullName?: string;
+            /** Format: int64 */
+            followerCount?: number;
+            /** Format: int64 */
+            followingCount?: number;
+            username?: string;
         };
         PublicUserDTO: {
             firstName?: string;
@@ -7580,6 +7648,130 @@ export interface operations {
                     "*/*": {
                         code: string;
                         data?: components["schemas"]["PublicUserDTO"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    publicPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                postId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["PublicPostResponse"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    publicProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["PublicProfileResponse"];
                         message: string;
                     };
                 };
