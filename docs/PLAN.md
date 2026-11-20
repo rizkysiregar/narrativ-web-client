@@ -354,15 +354,16 @@ Setiap item fitur dianggap selesai kalau:
 
 ## 9. Risiko dan mitigasi
 
-| Risiko                                                                                          | Mitigasi                                                                                      |
-| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Refresh bersamaan di beberapa tab membuat user ter-logout (rotasi sekali pakai)                 | Web Locks API di client (Fase 1). BE-13 kalau masih terjadi                                   |
-| Pengujian dengan curl tanpa header `Origin` tidak menangkap penolakan CORS yang dialami browser | Uji alur penting dengan browser sungguhan (Playwright) terhadap dev, termasuk header `Origin` |
-| Presigned URL kedaluwarsa 1 jam saat tab dibiarkan terbuka                                      | Refetch query saat gambar gagal dimuat atau saat tab kembali aktif                            |
-| Preview link share rusak karena `og:image` kedaluwarsa                                          | BE-08                                                                                         |
-| Semua pengunjung SSR terbaca satu IP oleh rate limiter                                          | BE-09                                                                                         |
-| App Check di-enforce sebelum web siap, login web jadi 403                                       | BE-12 harus selesai sebelum mode `enforce`                                                    |
-| Tipe frontend tidak sinkron dengan backend                                                      | Generate dari OpenAPI dan cek sinkron di CI                                                   |
+| Risiko                                                                                                                          | Mitigasi                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Refresh bersamaan di beberapa tab membuat user ter-logout (rotasi sekali pakai)                                                 | Web Locks API di client (Fase 1). BE-13 kalau masih terjadi                                                               |
+| Pengujian dengan curl tanpa header `Origin` tidak menangkap penolakan CORS yang dialami browser                                 | Uji alur penting dengan browser sungguhan (Playwright) terhadap dev, termasuk header `Origin`                             |
+| Cek lokal lulus karena memakai file hasil generate yang tertinggal (`.react-router/`), sementara CI mulai dari workspace bersih | Script `lint` dan `typecheck` menjalankan `typegen` sendiri. Sebelum PR yang mengubah tooling: `verify` dari clone bersih |
+| Presigned URL kedaluwarsa 1 jam saat tab dibiarkan terbuka                                                                      | Refetch query saat gambar gagal dimuat atau saat tab kembali aktif                                                        |
+| Preview link share rusak karena `og:image` kedaluwarsa                                                                          | BE-08                                                                                                                     |
+| Semua pengunjung SSR terbaca satu IP oleh rate limiter                                                                          | BE-09                                                                                                                     |
+| App Check di-enforce sebelum web siap, login web jadi 403                                                                       | BE-12 harus selesai sebelum mode `enforce`                                                                                |
+| Tipe frontend tidak sinkron dengan backend                                                                                      | Generate dari OpenAPI dan cek sinkron di CI                                                                               |
 
 ---
 
@@ -379,3 +380,4 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-20 | BE-16 (backend #72) dan BE-17 (gitops #13) merged. Login di `app-dev-narrativ` berfungsi. Fase 3 selesai (PR #3)                                                                                                                            |
 | 2026-11-20 | Fase 1: fondasi selesai di repo. Keputusan D10–D13 (API same-origin, dark-only, CSP hash, nginx sampai Fase 6), React Router 8, BE-04 diganti rule ingress, BE-15 ditambahkan                                                               |
 | 2026-11-20 | Fase 4 selesai (PR #4). BE-05 tidak diperlukan. Layout tidak lagi meng-import fitur (slot di `AppShell`)                                                                                                                                    |
+| 2026-11-20 | Build merge #3 dan #4 gagal di lint (tipe route belum di-generate di CI); dev masih Fase 2. Diperbaiki di PR #5                                                                                                                             |
