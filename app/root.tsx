@@ -8,7 +8,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { Toaster } from "sonner";
 
 import { restoreSession } from "~/api/session";
-import { APP_NAME } from "~/shared/config/env";
+import { APP_NAME, LANDING_URL } from "~/shared/config/env";
 import { createQueryClient } from "~/shared/lib/query-client";
 import { Button } from "~/shared/ui/button";
 import { LogoMark } from "~/shared/ui/logo";
@@ -17,12 +17,23 @@ import { Spinner } from "~/shared/ui/spinner";
 
 import type { Route } from "./+types/root";
 
+const DESCRIPTION = "NARRATIV: share your stories, follow people, and keep up with what they post.";
+
+/**
+ * The same tags for every page. Posts and profiles are only for signed-in users, so a link preview (WhatsApp, X, ...)
+ * never shows their content: crawlers are not signed in and get the brand card of the public website. Nothing of
+ * the app is indexed either.
+ */
 export const meta: Route.MetaFunction = () => [
   { title: APP_NAME },
-  {
-    name: "description",
-    content: "NARRATIV: share your stories, follow people, and keep up with what they post.",
-  },
+  { name: "description", content: DESCRIPTION },
+  { name: "robots", content: "noindex, nofollow" },
+  { property: "og:site_name", content: APP_NAME },
+  { property: "og:type", content: "website" },
+  { property: "og:title", content: APP_NAME },
+  { property: "og:description", content: DESCRIPTION },
+  { property: "og:image", content: `${LANDING_URL}/og/og-id.png` },
+  { name: "twitter:card", content: "summary_large_image" },
 ];
 
 export const links: Route.LinksFunction = () => [

@@ -6,6 +6,7 @@ import { useSession } from "~/api/session";
 import { SafetyMenu } from "~/features/safety";
 import { formatCount, formatDateTime, formatRelativeTime } from "~/shared/lib/format";
 import { Avatar } from "~/shared/ui/avatar";
+import { ShareButton } from "~/shared/ui/share-button";
 
 import type { Post } from "../api";
 import { DeletePostButton } from "./delete-post-button";
@@ -100,6 +101,9 @@ export function PostCard({ post, standalone = false, onMediaExpired, onDeleted }
             <MessageCircle className="size-4.5" aria-hidden="true" />
             {formatCount(post.commentCount ?? 0, i18n.language)}
           </Link>
+          {post.id && (
+            <ShareButton path={postPath} title={t("post.shareTitle", { username })} label={t("post.share")} />
+          )}
           {ownPost && post.id && <DeletePostButton postId={post.id} onDeleted={onDeleted} />}
           {!ownPost && post.id && post.userId && (
             <span className="ml-auto">

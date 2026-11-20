@@ -153,7 +153,9 @@
       "body": "It disappears from every feed and its comments go with it. This cannot be undone.",
       "confirm": "Delete",
       "done": "Post deleted"
-    }
+    },
+    "share": "Share post",
+    "shareTitle": "A post by @{{username}} on NARRATIV"
   },
   "profile": {
     "posts": "Posts",
@@ -176,7 +178,9 @@
     "followingButton": "Following",
     "followUser": "Follow @{{username}}",
     "unfollowUser": "Unfollow @{{username}}",
-    "edit": "Edit profile"
+    "edit": "Edit profile",
+    "share": "Share profile",
+    "shareTitle": "@{{username}} on NARRATIV"
   },
   "search": {
     "label": "Search people",
@@ -333,5 +337,9 @@
       "COMMENT_PINNED": "{{actor}} pinned your comment",
       "COMMENT_PINNED_many": "{{actor}} pinned your comment"
     }
+  },
+  "share": {
+    "copied": "Link copied",
+    "copyFailed": "Could not copy the link"
   }
 }
