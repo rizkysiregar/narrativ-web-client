@@ -1,6 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 
 import { useSession } from "~/api/session";
+import { UserMenu } from "~/features/auth";
+import { CreatePostButton } from "~/features/posts";
 import { AppShell } from "~/shared/layout/app-shell";
 
 export default function Shell() {
@@ -18,7 +20,12 @@ export default function Shell() {
     );
   }
   return (
-    <AppShell>
+    <AppShell
+      primaryAction={<CreatePostButton />}
+      floatingAction={<CreatePostButton compact />}
+      account={<UserMenu />}
+      accountCompact={<UserMenu compact />}
+    >
       <Outlet />
     </AppShell>
   );

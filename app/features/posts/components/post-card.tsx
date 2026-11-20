@@ -1,11 +1,14 @@
-import { Heart, MessageCircle, ShieldAlert, Sparkles } from "lucide-react";
+import { MessageCircle, ShieldAlert, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
+import { useSession } from "~/api/session";
 import { formatCount, formatDateTime, formatRelativeTime } from "~/shared/lib/format";
 import { Avatar } from "~/shared/ui/avatar";
 
 import type { Post } from "../api";
+import { DeletePostButton } from "./delete-post-button";
+import { LikeButton } from "./like-button";
 import { PostMedia } from "./post-media";
 
 interface PostCardProps {
@@ -13,10 +16,13 @@ interface PostCardProps {
   /** On the post's own page the caption is not a link to it. */
   standalone?: boolean;
   onMediaExpired?: (() => void) | undefined;
+  /** After the author deleted it, e.g. leave the post's own page. */
+  onDeleted?: (() => void) | undefined;
 }
 
-export function PostCard({ post, standalone = false, onMediaExpired }: PostCardProps) {
+export function PostCard({ post, standalone = false, onMediaExpired, onDeleted }: PostCardProps) {
   const { t, i18n } = useTranslation();
+  const ownPost = useSession((state) => state.user?.userId === post.userId);
   const username = post.username ?? "";
   const postPath = `/p/${post.id ?? ""}`;
   const takenDown = post.moderationStatus === "TAKEN_DOWN";
@@ -79,24 +85,17 @@ export function PostCard({ post, standalone = false, onMediaExpired }: PostCardP
           </Link>
         )}
 
-        <footer className="flex gap-6 text-sm text-muted">
-          <span
-            className="inline-flex items-center gap-1.5"
-            aria-label={t("post.likes", { count: post.likeCount ?? 0 })}
-          >
-            <Heart
-              className={post.liked ? "size-4.5 fill-blush text-blush" : "size-4.5"}
-              aria-hidden="true"
-            />
-            {formatCount(post.likeCount ?? 0, i18n.language)}
-          </span>
-          <span
-            className="inline-flex items-center gap-1.5"
+        <footer className="flex items-center gap-4 text-sm text-muted">
+          <LikeButton post={post} />
+          <Link
+            to={standalone ? "#comments" : postPath}
+            className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors hover:bg-lilac/10 hover:text-lilac"
             aria-label={t("post.comments", { count: post.commentCount ?? 0 })}
           >
             <MessageCircle className="size-4.5" aria-hidden="true" />
             {formatCount(post.commentCount ?? 0, i18n.language)}
-          </span>
+          </Link>
+          {ownPost && post.id && <DeletePostButton postId={post.id} onDeleted={onDeleted} />}
         </footer>
       </div>
     </article>

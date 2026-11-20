@@ -11,6 +11,7 @@ export const buttonVariants = cva(
         primary: "bg-lilac text-ink hover:bg-fg",
         secondary: "border border-line bg-plum text-fg hover:bg-plum-2",
         ghost: "text-muted hover:bg-plum hover:text-fg",
+        danger: "bg-danger text-ink hover:bg-blush",
       },
       size: {
         sm: "h-8 px-3 text-sm",

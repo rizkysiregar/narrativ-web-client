@@ -21,5 +21,6 @@ describe("csp", () => {
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain(`img-src 'self' data: blob: ${MEDIA_ORIGIN}`);
     expect(csp).toContain(`media-src 'self' blob: ${MEDIA_ORIGIN}`);
+    expect(csp).toContain(`connect-src 'self' ${MEDIA_ORIGIN}`);
   });
 });

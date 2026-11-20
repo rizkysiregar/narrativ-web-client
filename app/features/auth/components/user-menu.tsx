@@ -2,7 +2,7 @@ import { LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useSession } from "~/api/session";
-import { useLogout } from "~/features/auth/api";
+import { useLogout } from "../api";
 import { Button } from "~/shared/ui/button";
 
 /** Who is signed in, and the way out. `compact` is the icon-only version of the phone top bar. */

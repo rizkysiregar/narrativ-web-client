@@ -8,10 +8,28 @@ import { Logo, LogoMark } from "~/shared/ui/logo";
 import { LanguageSwitcher } from "./language-switcher";
 import { NAV_ITEMS } from "./nav";
 import { OfflineBanner } from "./offline-banner";
-import { UserMenu } from "./user-menu";
 
-/** Sidebar on wide screens, a top bar and a bottom tab bar on phones. */
-export function AppShell({ children }: { children: ReactNode }) {
+interface AppShellProps {
+  children: ReactNode;
+  /** The main call to action (create a post): under the navigation on wide screens, a floating button on phones. */
+  primaryAction?: ReactNode;
+  floatingAction?: ReactNode;
+  /** Who is signed in and the way out: in the sidebar, and its compact form in the phone top bar. */
+  account?: ReactNode;
+  accountCompact?: ReactNode;
+}
+
+/**
+ * Sidebar on wide screens, a top bar and a bottom tab bar on phones. What is feature-specific (account, create post)
+ * comes in through the slots, so the layout knows no feature.
+ */
+export function AppShell({
+  children,
+  primaryAction,
+  floatingAction,
+  account,
+  accountCompact,
+}: AppShellProps) {
   const { t } = useTranslation();
 
   return (
@@ -42,9 +60,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               ))}
             </ul>
           </nav>
+          {primaryAction}
         </div>
         <div className="flex flex-col gap-4">
-          <UserMenu />
+          {account}
           <div className="px-3">
             <LanguageSwitcher />
           </div>
@@ -58,12 +77,18 @@ export function AppShell({ children }: { children: ReactNode }) {
           </NavLink>
           <div className="flex items-center gap-1">
             <LanguageSwitcher />
-            <UserMenu compact />
+            {accountCompact}
           </div>
         </header>
         <OfflineBanner />
         <main className="mx-auto w-full max-w-2xl flex-1 pb-20 md:pb-0">{children}</main>
       </div>
+
+      {floatingAction && (
+        <div className="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 md:hidden">
+          {floatingAction}
+        </div>
+      )}
 
       <nav
         aria-label={t("nav.main")}
