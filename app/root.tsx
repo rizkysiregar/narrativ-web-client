@@ -1,0 +1,92 @@
+import "./app.css";
+import "~/shared/i18n";
+
+import { QueryClientProvider } from "@tanstack/react-query";
+import { useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { Toaster } from "sonner";
+
+import { APP_NAME } from "~/shared/config/env";
+import { createQueryClient } from "~/shared/lib/query-client";
+import { Button } from "~/shared/ui/button";
+import { LogoMark } from "~/shared/ui/logo";
+import { PageMessage } from "~/shared/ui/page-message";
+import { Spinner } from "~/shared/ui/spinner";
+
+import type { Route } from "./+types/root";
+
+export const meta: Route.MetaFunction = () => [
+  { title: APP_NAME },
+  {
+    name: "description",
+    content: "NARRATIV: share your stories, follow people, and keep up with what they post.",
+  },
+];
+
+export const links: Route.LinksFunction = () => [
+  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+  { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+];
+
+export function Layout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#0d0b14" />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export default function App() {
+  // one client per app instance, so tests and a future server render never share a cache
+  const [queryClient] = useState(createQueryClient);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Outlet />
+      <Toaster theme="dark" position="top-center" />
+    </QueryClientProvider>
+  );
+}
+
+/** Shown while the app starts (SPA mode renders this into index.html). */
+export function HydrateFallback() {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-6">
+      <LogoMark className="h-14" />
+      <Spinner label={t("app.loading")} />
+    </div>
+  );
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  const { t } = useTranslation();
+
+  if (import.meta.env.DEV) {
+    console.error(error);
+  }
+  return (
+    <PageMessage title={t("error.title")} body={t("error.body")}>
+      <Button
+        onClick={() => {
+          location.reload();
+        }}
+      >
+        {t("error.reload")}
+      </Button>
+    </PageMessage>
+  );
+}

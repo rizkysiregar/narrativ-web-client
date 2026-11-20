@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import "@fontsource-variable/bricolage-grotesque/standard.css";
+
+/*
+ * Dark only, like the Android app and web-landing: these are the app's own colors. Components use the tokens
+ * (bg-ink, text-muted, border-line, ...), never raw hex values, so a light theme only has to redefine them.
+ */
+@theme {
+  --color-ink: #0d0b14;
+  --color-plum: #171226;
+  --color-plum-2: #211a35;
+  --color-line: #2b2639;
+  --color-fg: #efeaf7;
+  --color-muted: #a59dbb;
+  --color-lilac: #b79ced;
+  --color-lilac-deep: #7b5cc7;
+  --color-blush: #f2a7c3;
+  --color-danger: #ff8a9a;
+
+  --font-sans: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --ease-settle: cubic-bezier(0.2, 0.9, 0.25, 1.15);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    background: var(--color-ink);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-lilac);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-lilac);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* the narrow width of Bricolage carries the brand */
+  .heading {
+    font-stretch: 85%;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+}

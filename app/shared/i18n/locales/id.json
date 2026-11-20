@@ -1,0 +1,37 @@
+{
+  "app": {
+    "loading": "Memuat NARRATIV"
+  },
+  "nav": {
+    "main": "Navigasi utama",
+    "home": "Beranda",
+    "explore": "Jelajahi",
+    "search": "Cari",
+    "notifications": "Notifikasi",
+    "profile": "Profil"
+  },
+  "comingSoon": {
+    "title": "Segera hadir",
+    "body": "Halaman ini hadir di fase berikutnya dari NARRATIV versi web."
+  },
+  "notFound": {
+    "title": "Halaman tidak ditemukan",
+    "body": "Halaman yang kamu cari tidak ada atau sudah dipindahkan.",
+    "back": "Kembali ke beranda"
+  },
+  "error": {
+    "title": "Terjadi kesalahan",
+    "body": "Terjadi kesalahan yang tidak terduga. Coba lagi, atau muat ulang halaman.",
+    "reload": "Muat ulang halaman"
+  },
+  "offline": "Kamu sedang offline. Yang tampil mungkin bukan yang terbaru.",
+  "language": {
+    "label": "Bahasa",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "errors": {
+    "network": "Tidak dapat terhubung ke NARRATIV. Periksa koneksimu lalu coba lagi.",
+    "unexpected": "Terjadi kesalahan. Silakan coba lagi."
+  }
+}

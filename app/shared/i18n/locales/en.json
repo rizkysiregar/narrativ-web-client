@@ -1,0 +1,37 @@
+{
+  "app": {
+    "loading": "Loading NARRATIV"
+  },
+  "nav": {
+    "main": "Main navigation",
+    "home": "Home",
+    "explore": "Explore",
+    "search": "Search",
+    "notifications": "Notifications",
+    "profile": "Profile"
+  },
+  "comingSoon": {
+    "title": "Coming soon",
+    "body": "This page arrives in a later phase of the NARRATIV web app."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist or has moved.",
+    "back": "Back to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "An unexpected error occurred. Try again, or reload the page.",
+    "reload": "Reload page"
+  },
+  "offline": "You are offline. What you see may be out of date.",
+  "language": {
+    "label": "Language",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "errors": {
+    "network": "Cannot reach NARRATIV. Check your connection and try again.",
+    "unexpected": "Something went wrong. Please try again."
+  }
+}
