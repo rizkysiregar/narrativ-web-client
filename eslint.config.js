@@ -17,6 +17,8 @@ export default tseslint.config(
     rules: {
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
+      // strict forbids `!`; this stylistic rule would ask for `!` instead of `as T`, so the two cannot both hold
+      "@typescript-eslint/non-nullable-type-assertion-style": "off",
     },
   },
   {

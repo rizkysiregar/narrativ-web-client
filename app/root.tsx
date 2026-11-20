@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { Toaster } from "sonner";
 
+import { restoreSession } from "~/api/session";
 import { APP_NAME } from "~/shared/config/env";
 import { createQueryClient } from "~/shared/lib/query-client";
 import { Button } from "~/shared/ui/button";
@@ -28,6 +29,18 @@ export const links: Route.LinksFunction = () => [
   { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
   { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
 ];
+
+/**
+ * Runs once before the first render (the start-up screen shows meanwhile): whether the refresh cookie still holds a
+ * session decides between the app and the sign-in page.
+ */
+export async function clientLoader() {
+  await restoreSession();
+  return null;
+}
+
+// the session is tracked in memory afterwards; navigating must not repeat the start-up refresh
+export const shouldRevalidate = () => false;
 
 export function Layout({ children }: { children: ReactNode }) {
   return (

@@ -8,6 +8,7 @@ import { Logo, LogoMark } from "~/shared/ui/logo";
 import { LanguageSwitcher } from "./language-switcher";
 import { NAV_ITEMS } from "./nav";
 import { OfflineBanner } from "./offline-banner";
+import { UserMenu } from "./user-menu";
 
 /** Sidebar on wide screens, a top bar and a bottom tab bar on phones. */
 export function AppShell({ children }: { children: ReactNode }) {
@@ -42,8 +43,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </ul>
           </nav>
         </div>
-        <div className="px-3">
-          <LanguageSwitcher />
+        <div className="flex flex-col gap-4">
+          <UserMenu />
+          <div className="px-3">
+            <LanguageSwitcher />
+          </div>
         </div>
       </aside>
 
@@ -52,7 +56,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <NavLink to="/" aria-label={t("nav.home")}>
             <LogoMark className="h-7" />
           </NavLink>
-          <LanguageSwitcher />
+          <div className="flex items-center gap-1">
+            <LanguageSwitcher />
+            <UserMenu compact />
+          </div>
         </header>
         <OfflineBanner />
         <main className="mx-auto w-full max-w-2xl flex-1 pb-20 md:pb-0">{children}</main>

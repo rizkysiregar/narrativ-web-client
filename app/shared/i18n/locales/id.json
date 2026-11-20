@@ -16,7 +16,7 @@
   },
   "notFound": {
     "title": "Halaman tidak ditemukan",
-    "body": "Halaman yang kamu cari tidak ada atau sudah dipindahkan.",
+    "body": "Halaman yang Anda cari tidak ada atau sudah dipindahkan.",
     "back": "Kembali ke beranda"
   },
   "error": {
@@ -24,14 +24,96 @@
     "body": "Terjadi kesalahan yang tidak terduga. Coba lagi, atau muat ulang halaman.",
     "reload": "Muat ulang halaman"
   },
-  "offline": "Kamu sedang offline. Yang tampil mungkin bukan yang terbaru.",
+  "offline": "Anda sedang offline. Yang tampil mungkin bukan yang terbaru.",
   "language": {
     "label": "Bahasa",
     "id": "Bahasa Indonesia",
     "en": "English"
   },
   "errors": {
-    "network": "Tidak dapat terhubung ke NARRATIV. Periksa koneksimu lalu coba lagi.",
+    "network": "Tidak dapat terhubung ke NARRATIV. Periksa koneksi Anda lalu coba lagi.",
     "unexpected": "Terjadi kesalahan. Silakan coba lagi."
+  },
+  "common": {
+    "continue": "Lanjut",
+    "back": "Kembali",
+    "show": "Tampilkan",
+    "hide": "Sembunyikan",
+    "showPassword": "Tampilkan kata sandi",
+    "hidePassword": "Sembunyikan kata sandi"
+  },
+  "validation": {
+    "required": "Kolom ini wajib diisi",
+    "username": {
+      "required": "Username wajib diisi",
+      "size": "Gunakan 3 sampai 16 karakter",
+      "pattern": "Hanya huruf, angka, titik (.) dan garis bawah (_)"
+    },
+    "password": {
+      "required": "Kata sandi wajib diisi",
+      "size": "Gunakan 8 sampai 64 karakter",
+      "tooLong": "Kata sandi terlalu panjang, gunakan lebih sedikit karakter",
+      "mismatch": "Kata sandi tidak cocok"
+    },
+    "email": {
+      "invalid": "Masukkan alamat email yang valid"
+    },
+    "name": {
+      "size": "Gunakan 2 sampai 50 karakter"
+    },
+    "otp": {
+      "digits": "Masukkan 6 digit kode"
+    }
+  },
+  "auth": {
+    "fields": {
+      "username": "Username",
+      "password": "Kata sandi",
+      "email": "Alamat email",
+      "firstName": "Nama depan",
+      "lastName": "Nama belakang",
+      "confirmPassword": "Ulangi kata sandi",
+      "newPassword": "Kata sandi baru",
+      "otp": "Kode verifikasi"
+    },
+    "login": {
+      "title": "Selamat datang kembali",
+      "subtitle": "Masuk untuk mengikuti cerita orang-orang yang Anda ikuti.",
+      "submit": "Masuk",
+      "forgot": "Lupa kata sandi?",
+      "noAccount": "Baru di NARRATIV?",
+      "toRegister": "Buat akun",
+      "ended": "Sesi Anda telah berakhir."
+    },
+    "register": {
+      "title": "Buat akun Anda",
+      "subtitle": "Bagikan cerita Anda dan ikuti orang-orang yang Anda pedulikan.",
+      "submit": "Buat akun",
+      "hasAccount": "Sudah punya akun?",
+      "toLogin": "Masuk",
+      "agreement": "Dengan membuat akun, Anda menyetujui <terms>Ketentuan</terms> dan <privacy>Kebijakan Privasi</privacy>.",
+      "success": "Akun Anda sudah siap. Selamat datang di NARRATIV!"
+    },
+    "otp": {
+      "title": "Periksa email Anda",
+      "sentTo": "Kami telah mengirim 6 digit kode ke {{email}}. Kode berlaku {{minutes}} menit.",
+      "submit": "Verifikasi",
+      "resend": "Kirim kode baru",
+      "resendIn": "Kirim kode baru dalam {{seconds}} dtk",
+      "resent": "Kode baru sedang dikirim.",
+      "changeEmail": "Gunakan email lain"
+    },
+    "forgot": {
+      "title": "Atur ulang kata sandi",
+      "subtitle": "Masukkan email yang terhubung dengan akun Anda, kami akan mengirim kode.",
+      "submit": "Kirim kode",
+      "newTitle": "Buat kata sandi baru",
+      "newSubtitle": "Pilih sesuatu yang mudah Anda ingat.",
+      "save": "Simpan kata sandi",
+      "success": "Kata sandi berhasil diubah. Silakan masuk dengan kata sandi baru Anda.",
+      "toLogin": "Kembali ke halaman masuk"
+    },
+    "logout": "Keluar",
+    "signedInAs": "Masuk sebagai {{username}}"
   }
 }
