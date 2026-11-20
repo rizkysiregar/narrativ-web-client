@@ -1,22 +1,17 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import { api } from "~/api/client";
 import { request } from "~/api/errors";
-import type { Schemas } from "~/api/types";
+import { errorMessage } from "~/shared/lib/error-message";
 
-export type Post = Schemas["PostFeedResponse"];
-export type PostMedia = Schemas["PostMediaResponse"];
-type FeedPage = Schemas["PaginatedResponsePostFeedResponse"];
+import { removePostFromCaches, updatePostInCaches } from "./cache";
+import { postKeys, type FeedPage } from "./keys";
+
+export { postKeys, type Post, type PostMedia } from "./keys";
 
 const PAGE_SIZE = 10;
-
-export const postKeys = {
-  all: ["posts"] as const,
-  feed: (feed: "home" | "explore") => [...postKeys.all, "feed", feed] as const,
-  byUser: (username: string, mediaOnly: boolean) =>
-    [...postKeys.all, "user", username.toLowerCase(), { mediaOnly }] as const,
-  detail: (postId: string) => [...postKeys.all, "detail", postId] as const,
-};
 
 // the feeds page with a cursor: every page answers the one after it, the last page answers none
 const cursorPaging = {
@@ -68,5 +63,57 @@ export function usePost(postId: string) {
   return useQuery({
     queryKey: postKeys.detail(postId),
     queryFn: ({ signal }) => request(api.GET("/posts/{postId}", { params: { path: { postId } }, signal })),
+  });
+}
+
+/**
+ * Likes or unlikes a post. Every cached copy changes at once and goes back if the backend refuses; the counts are
+ * not fetched again afterwards, so nothing jumps.
+ */
+export function useLikePost() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: ({ postId, liked }: { postId: string; liked: boolean }) =>
+      liked
+        ? request(api.POST("/posts/{postId}/like", { params: { path: { postId } } }))
+        : request(api.DELETE("/posts/{postId}/dislike", { params: { path: { postId } } })),
+    onMutate: async ({ postId, liked }) => {
+      await queryClient.cancelQueries({ queryKey: postKeys.all });
+      const rollback = updatePostInCaches(queryClient, postId, (post) => ({
+        ...post,
+        liked,
+        likeCount: Math.max(0, (post.likeCount ?? 0) + (liked ? 1 : -1)),
+      }));
+      return { rollback };
+    },
+    onError: (error, _variables, context) => {
+      context?.rollback();
+      toast.error(errorMessage(error, t));
+    },
+  });
+}
+
+export function useDeletePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (postId: string) => request(api.DELETE("/posts/{postId}", { params: { path: { postId } } })),
+    onSuccess: (_result, postId) => {
+      removePostFromCaches(queryClient, postId);
+    },
+  });
+}
+
+/** Creates a post from a caption and the object keys of its uploaded media, then refreshes every feed. */
+export function useCreatePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: { caption?: string; mediaKeys: string[] }) => request(api.POST("/posts", { body })),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: postKeys.all });
+    },
   });
 }

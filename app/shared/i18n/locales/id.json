@@ -40,7 +40,9 @@
     "show": "Tampilkan",
     "hide": "Sembunyikan",
     "showPassword": "Tampilkan kata sandi",
-    "hidePassword": "Sembunyikan kata sandi"
+    "hidePassword": "Sembunyikan kata sandi",
+    "cancel": "Batal",
+    "close": "Tutup"
   },
   "validation": {
     "required": "Kolom ini wajib diisi",
@@ -144,6 +146,15 @@
     "media": {
       "gallery": "Media, {{count}} item",
       "item": "Media {{index}} dari {{count}} oleh @{{author}}"
+    },
+    "like": "Suka",
+    "unlike": "Batal suka",
+    "delete": {
+      "action": "Hapus postingan",
+      "title": "Hapus postingan ini?",
+      "body": "Postingan hilang dari semua beranda beserta komentarnya. Tindakan ini tidak bisa dibatalkan.",
+      "confirm": "Hapus",
+      "done": "Postingan dihapus"
     }
   },
   "profile": {
@@ -162,7 +173,11 @@
     "noFollowing": "Belum mengikuti siapa pun",
     "openPost": "Buka postingan",
     "notFound": "Profil tidak tersedia",
-    "notFoundBody": "Akun ini tidak ada, atau Anda tidak dapat melihatnya."
+    "notFoundBody": "Akun ini tidak ada, atau Anda tidak dapat melihatnya.",
+    "follow": "Ikuti",
+    "followingButton": "Mengikuti",
+    "followUser": "Ikuti @{{username}}",
+    "unfollowUser": "Berhenti mengikuti @{{username}}"
   },
   "search": {
     "label": "Cari orang",
@@ -171,5 +186,44 @@
     "hint": "Ketik username untuk menemukan orang yang ingin Anda ikuti.",
     "noResults": "Tidak ada yang cocok dengan “{{term}}”",
     "results": "Hasil pencarian"
+  },
+  "composer": {
+    "open": "Buat postingan",
+    "title": "Postingan baru",
+    "caption": "Caption",
+    "placeholder": "Apa cerita Anda?",
+    "media": "Media terpilih",
+    "addMedia": "Foto atau video ({{count}}/{{max}})",
+    "remove": "Hapus media {{index}}",
+    "uploading": "Mengunggah media {{index}}",
+    "publish": "Posting",
+    "publishing": "Memposting…",
+    "published": "Postingan Anda sudah tayang",
+    "problem": {
+      "type": "Hanya foto JPG, PNG, WebP, GIF dan video MP4, MOV, WebM yang bisa diposting.",
+      "imageSize": "Ukuran foto maksimal 5 MB.",
+      "videoSize": "Ukuran video maksimal 50 MB.",
+      "tooMany": "Satu postingan maksimal berisi {{max}} foto dan video."
+    }
+  },
+  "comments": {
+    "title": "Komentar",
+    "write": "Tulis komentar",
+    "replyTo": "Balas @{{username}}",
+    "send": "Kirim",
+    "sendReply": "Kirim balasan",
+    "reply": "Balas",
+    "pin": "Sematkan",
+    "unpin": "Lepas sematan",
+    "pinned": "Disematkan",
+    "delete": "Hapus",
+    "deleteTitle": "Hapus komentar ini?",
+    "deleteBody": "Tindakan ini tidak bisa dibatalkan.",
+    "deleteWithReplies": "Balasannya juga ikut terhapus. Tindakan ini tidak bisa dibatalkan.",
+    "takenDown": "Komentar ini diturunkan oleh moderator.",
+    "empty": "Belum ada komentar. Jadilah yang pertama.",
+    "showReplies_one": "Lihat {{count}} balasan",
+    "showReplies_other": "Lihat {{count}} balasan",
+    "hideReplies": "Sembunyikan balasan"
   }
 }

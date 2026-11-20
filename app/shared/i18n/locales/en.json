@@ -40,7 +40,9 @@
     "show": "Show",
     "hide": "Hide",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "validation": {
     "required": "This field is required",
@@ -144,6 +146,15 @@
     "media": {
       "gallery": "Media, {{count}} items",
       "item": "Media {{index}} of {{count}} by @{{author}}"
+    },
+    "like": "Like",
+    "unlike": "Unlike",
+    "delete": {
+      "action": "Delete post",
+      "title": "Delete this post?",
+      "body": "It disappears from every feed and its comments go with it. This cannot be undone.",
+      "confirm": "Delete",
+      "done": "Post deleted"
     }
   },
   "profile": {
@@ -162,7 +173,11 @@
     "noFollowing": "Not following anyone yet",
     "openPost": "Open post",
     "notFound": "Profile not available",
-    "notFoundBody": "This account does not exist, or you cannot see it."
+    "notFoundBody": "This account does not exist, or you cannot see it.",
+    "follow": "Follow",
+    "followingButton": "Following",
+    "followUser": "Follow @{{username}}",
+    "unfollowUser": "Unfollow @{{username}}"
   },
   "search": {
     "label": "Search people",
@@ -171,5 +186,44 @@
     "hint": "Type a username to find people to follow.",
     "noResults": "No one matches “{{term}}”",
     "results": "Search results"
+  },
+  "composer": {
+    "open": "Create post",
+    "title": "New post",
+    "caption": "Caption",
+    "placeholder": "What is your story?",
+    "media": "Selected media",
+    "addMedia": "Photo or video ({{count}}/{{max}})",
+    "remove": "Remove media {{index}}",
+    "uploading": "Uploading media {{index}}",
+    "publish": "Post",
+    "publishing": "Posting…",
+    "published": "Your post is live",
+    "problem": {
+      "type": "Only JPG, PNG, WebP, GIF photos and MP4, MOV, WebM videos can be posted.",
+      "imageSize": "Photos can be up to 5 MB.",
+      "videoSize": "Videos can be up to 50 MB.",
+      "tooMany": "A post has at most {{max}} photos and videos."
+    }
+  },
+  "comments": {
+    "title": "Comments",
+    "write": "Write a comment",
+    "replyTo": "Reply to @{{username}}",
+    "send": "Comment",
+    "sendReply": "Send reply",
+    "reply": "Reply",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "pinned": "Pinned",
+    "delete": "Delete",
+    "deleteTitle": "Delete this comment?",
+    "deleteBody": "This cannot be undone.",
+    "deleteWithReplies": "Its replies are deleted too. This cannot be undone.",
+    "takenDown": "This comment was taken down by a moderator.",
+    "empty": "No comments yet. Be the first.",
+    "showReplies_one": "View {{count}} reply",
+    "showReplies_other": "View {{count}} replies",
+    "hideReplies": "Hide replies"
   }
 }

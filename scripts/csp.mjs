@@ -27,8 +27,8 @@ export function contentSecurityPolicy(scriptHashes) {
     `img-src 'self' data: blob: ${MEDIA_ORIGIN}`,
     `media-src 'self' blob: ${MEDIA_ORIGIN}`,
     "font-src 'self'",
-    // the API is same-origin (the ingress routes /api to the backend)
-    "connect-src 'self'",
+    // the API is same-origin (the ingress routes /api to the backend); post media upload straight to MinIO
+    `connect-src 'self' ${MEDIA_ORIGIN}`,
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'self'",

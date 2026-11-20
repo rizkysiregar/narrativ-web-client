@@ -1,8 +1,12 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import { api } from "~/api/client";
 import { request } from "~/api/errors";
 import type { Schemas } from "~/api/types";
+import { postKeys } from "~/features/posts";
+import { errorMessage } from "~/shared/lib/error-message";
 
 export type PublicUser = Schemas["PublicUserDTO"];
 export type FollowUser = Schemas["FollowUserResponse"];
@@ -74,5 +78,44 @@ export function useUserSearch(term: string) {
       ),
     enabled: term.length > 0,
     ...pagePaging,
+  });
+}
+
+type FollowStatus = Schemas["FollowStatusResponse"];
+
+/**
+ * Follows or unfollows a user. The button and the follower count change at once and go back if the backend refuses;
+ * afterwards the lists and the home feed (which shows followed people) are fetched again.
+ */
+export function useFollow(userId: string) {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const key = userKeys.followStatus(userId);
+
+  return useMutation({
+    mutationFn: (follow: boolean) =>
+      follow
+        ? request(api.POST("/users/{userId}/follow", { params: { path: { userId } } }))
+        : request(api.DELETE("/users/{userId}/follow", { params: { path: { userId } } })),
+    onMutate: async (follow) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const before = queryClient.getQueryData<FollowStatus>(key);
+      queryClient.setQueryData<FollowStatus>(key, (status) => ({
+        ...status,
+        isFollowing: follow,
+        followerCount: Math.max(0, (status?.followerCount ?? 0) + (follow ? 1 : -1)),
+      }));
+      return { before };
+    },
+    onError: (error, _follow, context) => {
+      queryClient.setQueryData(key, context?.before);
+      toast.error(errorMessage(error, t));
+    },
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: [...userKeys.all, userId] }),
+        queryClient.invalidateQueries({ queryKey: postKeys.feed("home") }),
+      ]);
+    },
   });
 }
