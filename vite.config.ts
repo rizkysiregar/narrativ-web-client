@@ -6,6 +6,7 @@ import pkg from "./package.json" with { type: "json" };
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const apiTarget = env.API_PROXY_TARGET ?? "https://api-dev-narrativ.rizkysiregar.my.id";
 
   return {
     plugins: [tailwindcss(), reactRouter()],
@@ -21,9 +22,18 @@ export default defineConfig(({ mode }) => {
       // dev server plays that part. The refresh cookie then belongs to localhost like it belongs to the app host.
       proxy: {
         "/api": {
-          target: env.API_PROXY_TARGET ?? "https://api-dev-narrativ.rizkysiregar.my.id",
+          target: apiTarget,
           changeOrigin: true,
           secure: true,
+          // the browser sends Origin: http://localhost:<port>, which the backend would judge cross-origin and refuse
+          // (403) unless that exact origin is in its CORS list; to the backend the call must look same-origin
+          configure: (proxy) => {
+            proxy.on("proxyReq", (request) => {
+              if (request.getHeader("origin")) {
+                request.setHeader("origin", new URL(apiTarget).origin);
+              }
+            });
+          },
         },
       },
     },
