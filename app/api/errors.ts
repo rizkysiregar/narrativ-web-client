@@ -40,7 +40,7 @@ export class ApiError extends Error {
   }
 }
 
-// error bodies are not typed precisely in the OpenAPI document yet (springdoc lists some as empty objects)
+// checked at runtime: a proxy or the ingress can answer an error with HTML or nothing instead of the backend's body
 function isErrorBody(body: unknown): body is ErrorBody {
   return typeof body === "object" && body !== null && typeof (body as ErrorBody).message === "string";
 }

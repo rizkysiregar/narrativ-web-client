@@ -22,6 +22,9 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+                // The workspace survives between builds, and checkout leaves untracked files alone: the gitops clone of
+                // the last stage (gitops/) and old build output would otherwise be checked by prettier and eslint.
+                sh 'git clean -ffdx'
                 script {
                     env.IMAGE_TAG = sh(
                         script: 'git rev-parse --short=12 HEAD',

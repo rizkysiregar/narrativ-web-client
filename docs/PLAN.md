@@ -3,7 +3,7 @@
 Rencana pengembangan NARRATIV versi web (client untuk role `USER`, setara aplikasi Android). Dokumen ini acuan utama:
 apa yang harus disiapkan di backend dan infra, urutan fase pengembangan web, serta progress tiap item.
 
-- **Status:** Fase 0 selesai, Fase 1 berjalan
+- **Status:** Fase 0 dan 1 selesai, Fase 2 berjalan
 - **Dibuat:** 2026-11-20
 - **Repo terkait:** `narrativ-backend`, `narrativ-android`, `homelabs-gitops`, `web-admin`, `web-landing`
 - **Lokasi dokumen:** `narrativ-web-client/docs/PLAN.md`
@@ -18,7 +18,7 @@ Status fase di tabel ringkasan ikut diperbarui. Item yang batal dicoret (`~~...~
 | Fase | Isi                                          | Status      |
 | ---- | -------------------------------------------- | ----------- |
 | 0    | Persiapan backend dan infra                  | ✅ Selesai  |
-| 1    | Fondasi dan walking skeleton (deploy ke dev) | 🟡 Berjalan |
+| 1    | Fondasi dan walking skeleton (deploy ke dev) | ✅ Selesai  |
 | 2    | Autentikasi lewat API in-app (tanpa OAuth)   | 🟡 Berjalan |
 | 3    | Membaca konten (feed, post, profil, search)  | ⚪ Belum    |
 | 4    | Membuat konten dan interaksi                 | ⚪ Belum    |
@@ -125,7 +125,7 @@ Kolom _Kapan_ menunjukkan paling lambat item harus selesai.
 | BE-12 | Web app terdaftar di Firebase dengan App Check reCAPTCHA Enterprise, app id masuk `allowed-apps`                                                   | Firebase + backend   | Fase 9         | [ ]    |     |
 | BE-13 | (Opsional) Grace window rotasi refresh token, dievaluasi setelah Fase 2                                                                            | backend              | Setelah Fase 2 | [ ]    |     |
 | BE-14 | (Opsional) Android mengirim `X-Client-Platform: android` dan `X-App-Version`                                                                       | android              | Kapan saja     | [ ]    |     |
-| BE-15 | Response 4xx/5xx yang dibuat otomatis oleh springdoc dari exception handler (schema kosong) diganti dengan `ErrorResponse`                         | backend              | Fase 2         | 🟡 PR  | #71 |
+| BE-15 | Response 4xx/5xx yang dibuat otomatis oleh springdoc dari exception handler (schema kosong) diganti dengan `ErrorResponse`                         | backend              | Fase 2         | [x]    | #71 |
 
 ### Detail BE-01: Envelope di OpenAPI
 
@@ -189,7 +189,7 @@ Setiap fase selesai kalau semua item tercentang dan _Definition of Done_ (bagian
 - [x] Cek alur cookie di dev: logout dengan header web menghapus cookie, refresh tanpa token menjawab 401.
       Login sampai refresh dengan akun sungguhan diuji di Fase 2
 
-### Fase 1: Fondasi dan walking skeleton 🟡
+### Fase 1: Fondasi dan walking skeleton ✅
 
 - [x] Repo [`narrativ-web-client`](https://github.com/rizkysiregar/narrativ-web-client) (private) di GitHub, folder `web-app/web-client`
 - [x] Scaffold React Router 8 (framework mode, `ssr: false`), TypeScript strict, Tailwind 4.
@@ -203,17 +203,17 @@ Setiap fase selesai kalau semua item tercentang dan _Definition of Done_ (bagian
 - [x] i18n EN/ID dengan key bertipe, tema dark-only (D11), layout dasar: sidebar desktop, top bar + tab bar mobile
 - [x] Error boundary, halaman 404, banner offline, placeholder untuk halaman fase berikutnya
 - [x] Dockerfile (nginx), CSP berbasis hash (D12), Jenkinsfile (pola `web-admin`, Node 24), `.env.example`, README
-- [ ] `homelabs-gitops/apps/narrativ-web-client-dev` (deployment, service, ingress dengan rule `/api`, kustomization) (PR [homelabs-gitops#12](https://github.com/rizkysiregar/homelabs-gitops/pull/12))
+- [x] `homelabs-gitops/apps/narrativ-web-client-dev` (deployment, service, ingress dengan rule `/api`, kustomization) (PR [homelabs-gitops#12](https://github.com/rizkysiregar/homelabs-gitops/pull/12))
 - [x] Cloudflare Tunnel hostname `app-dev-narrativ.rizkysiregar.my.id`
-- [ ] Pipeline Jenkins `narrativ-web-client` dan Argo CD Application (dibuat manual, langkahnya di README gitops)
-- [ ] Halaman ter-deploy di `app-dev-narrativ.rizkysiregar.my.id`, `/healthz` menjawab 200, `/api/v1` sampai ke backend
+- [x] Pipeline Jenkins `narrativ-web-client` dan Argo CD Application (dibuat manual, langkahnya di README gitops)
+- [x] Halaman ter-deploy di `app-dev-narrativ.rizkysiregar.my.id`, `/healthz` menjawab 200, `/api/v1` sampai ke backend
 
 ### Fase 2: Autentikasi lewat API in-app 🟡
 
 Hanya memakai endpoint auth milik backend sendiri. Login Google dipisah ke Fase 8 karena butuh konfigurasi Firebase
 dan Google Client ID.
 
-- [ ] BE-15 selesai (PR [backend#71](https://github.com/rizkysiregar/narrativ-backend/pull/71)), lalu `npm run api:generate`
+- [x] BE-15 selesai (PR [backend#71](https://github.com/rizkysiregar/narrativ-backend/pull/71)), lalu `npm run api:generate`
 - [x] Komponen form (input, password dengan tombol tampilkan, form field dengan error yang terbaca screen reader,
       alert) + React Hook Form + Zod. Aturan validasi mengikuti backend (username, password ≤ 72 byte, OTP)
 - [x] Login username + password, kembali ke halaman yang diminta (`?redirect=`, aman dari open redirect)
@@ -353,4 +353,5 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-20 | PR backend #70 dibuat (BE-01, BE-02, BE-03)                                                                                                                                   |
 | 2026-11-20 | #70 merged dan terverifikasi di dev. Fase 0 selesai. Google Sign-In dipindah ke Fase 8 tersendiri, hardening jadi Fase 9                                                      |
 | 2026-11-20 | Fase 2: alur auth in-app selesai di branch `feat/auth`. BE-15 di PR backend #71                                                                                               |
+| 2026-11-20 | Fase 1 selesai: web client live di `app-dev-narrativ`. PR #1 (auth) dan backend #71 merged, tipe API di-generate ulang. Pipeline membersihkan workspace sebelum verify        |
 | 2026-11-20 | Fase 1: fondasi selesai di repo. Keputusan D10–D13 (API same-origin, dark-only, CSP hash, nginx sampai Fase 6), React Router 8, BE-04 diganti rule ingress, BE-15 ditambahkan |
