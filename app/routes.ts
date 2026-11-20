@@ -20,8 +20,12 @@ export default [
     route("u/:username/followers", "routes/follows.tsx", { id: "followers" }),
     route("u/:username/following", "routes/follows.tsx", { id: "following" }),
     route("profile", "routes/my-profile.tsx"),
-    // placeholder until its phase; the module shows the title of its route id
-    route("notifications", "routes/coming-soon.tsx", { id: "notifications" }),
+    route("notifications", "routes/notifications.tsx"),
+    route("settings", "routes/settings.tsx"),
+    route("settings/profile", "routes/settings-profile.tsx"),
+    route("settings/email", "routes/settings-email.tsx"),
+    route("settings/blocked", "routes/settings-blocked.tsx"),
+    route("settings/delete-account", "routes/settings-delete.tsx"),
     route("*", "routes/not-found.tsx"),
   ]),
 ] satisfies RouteConfig;

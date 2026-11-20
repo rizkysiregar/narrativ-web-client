@@ -186,3 +186,40 @@ describe("follow", () => {
     expect(screen.queryByRole("button", { name: /Follow/ })).not.toBeInTheDocument();
   });
 });
+
+describe("quote", () => {
+  it("quotes the text selected in the caption", async () => {
+    server.use(
+      http.get(api("/posts/p1"), () =>
+        ok(post({ id: "p1", userId: "u9", caption: "The sea was calm that morning" })),
+      ),
+      http.get(api("/posts/p1/comments"), () => ok(numberedPage([]))),
+    );
+    const sent: unknown[] = [];
+    server.use(
+      http.post(api("/posts/p1/comments"), async ({ request }) => {
+        sent.push(await request.json());
+        return ok("CREATED");
+      }),
+    );
+    renderApp("/p/p1");
+
+    const caption = await screen.findByText("The sea was calm that morning");
+    const text = caption.firstChild as Text;
+    const range = document.createRange();
+    range.setStart(text, 4);
+    range.setEnd(text, 16);
+    document.getSelection()?.removeAllRanges();
+    document.getSelection()?.addRange(range);
+    document.dispatchEvent(new Event("selectionchange"));
+
+    await user.click(await screen.findByRole("button", { name: "Quote the selected text" }));
+    expect(screen.getByText("“sea was calm”")).toBeInTheDocument();
+    await user.type(screen.getByRole("textbox", { name: "Write a comment" }), "So true");
+    await user.click(screen.getByRole("button", { name: "Comment" }));
+
+    await waitFor(() => {
+      expect(sent).toEqual([{ content: "So true", quoteText: "sea was calm" }]);
+    });
+  });
+});

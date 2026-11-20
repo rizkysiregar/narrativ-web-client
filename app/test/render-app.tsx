@@ -3,7 +3,6 @@ import { render } from "@testing-library/react";
 import { createRoutesStub } from "react-router";
 import { Toaster } from "sonner";
 
-import ComingSoon from "~/routes/coming-soon";
 import Explore from "~/routes/explore";
 import Follows from "~/routes/follows";
 import ForgotPassword from "~/routes/forgot-password";
@@ -12,12 +11,18 @@ import Home from "~/routes/home";
 import Login from "~/routes/login";
 import MyProfile from "~/routes/my-profile";
 import NotFound from "~/routes/not-found";
+import Notifications from "~/routes/notifications";
 import PostPage from "~/routes/post";
 import Profile from "~/routes/profile";
 import ProfileMedia from "~/routes/profile-media";
 import ProfilePosts from "~/routes/profile-posts";
 import Register from "~/routes/register";
 import SearchPage from "~/routes/search";
+import Settings from "~/routes/settings";
+import SettingsBlocked from "~/routes/settings-blocked";
+import SettingsDelete from "~/routes/settings-delete";
+import SettingsEmail from "~/routes/settings-email";
+import SettingsProfile from "~/routes/settings-profile";
 import Shell from "~/routes/shell";
 import { createQueryClient } from "~/shared/lib/query-client";
 
@@ -54,7 +59,12 @@ export function renderApp(path: string) {
         { id: "followers", path: "/u/:username/followers", Component: page(Follows) },
         { id: "following", path: "/u/:username/following", Component: page(Follows) },
         { path: "/profile", Component: MyProfile },
-        { id: "notifications", path: "/notifications", Component: ComingSoon },
+        { path: "/notifications", Component: Notifications },
+        { path: "/settings", Component: Settings },
+        { path: "/settings/profile", Component: SettingsProfile },
+        { path: "/settings/email", Component: SettingsEmail },
+        { path: "/settings/blocked", Component: SettingsBlocked },
+        { path: "/settings/delete-account", Component: SettingsDelete },
         { path: "*", Component: NotFound },
       ],
     },

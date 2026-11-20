@@ -14,7 +14,7 @@ import { PasswordInput } from "~/shared/ui/password-input";
 import { resetPassword, sendPasswordResetOtp, verifyPasswordResetOtp } from "../api";
 import { emailSchema, newPasswordSchema, type EmailValues, type NewPasswordValues } from "../schemas";
 import { AuthCard } from "./auth-card";
-import { FormError } from "./form-error";
+import { FormError } from "~/shared/ui/form-error";
 import { OtpStep } from "./otp-step";
 
 type Step =

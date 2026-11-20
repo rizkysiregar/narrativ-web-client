@@ -12,7 +12,7 @@ import { Input } from "~/shared/ui/input";
 
 import { otpSchema, type OtpValues } from "../schemas";
 import { AuthCard } from "./auth-card";
-import { FormError } from "./form-error";
+import { FormError } from "~/shared/ui/form-error";
 
 // the Android app waits as long before it offers a new code
 const RESEND_AFTER_SECONDS = 60;

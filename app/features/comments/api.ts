@@ -60,7 +60,7 @@ export function useAddComment(postId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: { content: string; parentId?: string }) =>
+    mutationFn: (body: { content: string; parentId?: string; quoteText?: string }) =>
       request(api.POST("/posts/{postId}/comments", { params: { path: { postId } }, body })),
     onSuccess: async () => {
       updatePostInCaches(queryClient, postId, (post) => ({

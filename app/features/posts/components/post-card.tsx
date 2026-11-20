@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import { useSession } from "~/api/session";
+import { SafetyMenu } from "~/features/safety";
 import { formatCount, formatDateTime, formatRelativeTime } from "~/shared/lib/format";
 import { Avatar } from "~/shared/ui/avatar";
 
@@ -30,7 +31,11 @@ export function PostCard({ post, standalone = false, onMediaExpired, onDeleted }
 
   const body = (
     <>
-      {post.caption && <p className="break-words whitespace-pre-line">{post.caption}</p>}
+      {post.caption && (
+        <p className="break-words whitespace-pre-line" data-caption-of={post.id}>
+          {post.caption}
+        </p>
+      )}
       {media.length > 0 && <PostMedia media={media} author={username} onExpired={onMediaExpired} />}
     </>
   );
@@ -96,6 +101,11 @@ export function PostCard({ post, standalone = false, onMediaExpired, onDeleted }
             {formatCount(post.commentCount ?? 0, i18n.language)}
           </Link>
           {ownPost && post.id && <DeletePostButton postId={post.id} onDeleted={onDeleted} />}
+          {!ownPost && post.id && post.userId && (
+            <span className="ml-auto">
+              <SafetyMenu target={{ type: "POST", id: post.id }} user={{ id: post.userId, username }} />
+            </span>
+          )}
         </footer>
       </div>
     </article>
