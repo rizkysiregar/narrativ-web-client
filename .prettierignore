@@ -1,0 +1,5 @@
+build
+.react-router
+coverage
+package-lock.json
+app/api/schema.d.ts
