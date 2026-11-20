@@ -3,7 +3,7 @@
 Rencana pengembangan NARRATIV versi web (client untuk role `USER`, setara aplikasi Android). Dokumen ini acuan utama:
 apa yang harus disiapkan di backend dan infra, urutan fase pengembangan web, serta progress tiap item.
 
-- **Status:** Fase 0–3 selesai, berikutnya Fase 4
+- **Status:** Fase 0–4 selesai, berikutnya Fase 5
 - **Dibuat:** 2026-11-20
 - **Repo terkait:** `narrativ-backend`, `narrativ-android`, `homelabs-gitops`, `web-admin`, `web-landing`
 - **Lokasi dokumen:** `narrativ-web-client/docs/PLAN.md`
@@ -21,7 +21,7 @@ Status fase di tabel ringkasan ikut diperbarui. Item yang batal dicoret (`~~...~
 | 1    | Fondasi dan walking skeleton (deploy ke dev) | ✅ Selesai |
 | 2    | Autentikasi lewat API in-app (tanpa OAuth)   | ✅ Selesai |
 | 3    | Membaca konten (feed, post, profil, search)  | ✅ Selesai |
-| 4    | Membuat konten dan interaksi                 | ⚪ Belum   |
+| 4    | Membuat konten dan interaksi                 | ✅ Selesai |
 | 5    | Akun, notifikasi in-app, dan keamanan        | ⚪ Belum   |
 | 6    | Sharing publik dan SEO (SSR)                 | ⚪ Belum   |
 | 7    | Web push dan PWA                             | ⚪ Belum   |
@@ -117,7 +117,7 @@ Kolom _Kapan_ menunjukkan paling lambat item harus selesai.
 | BE-02 | Refresh token lewat cookie httpOnly untuk web                                                                                                                                                                    | backend              | Fase 0         | [x]    | #70       |
 | BE-03 | Header `X-Client-Platform` / `X-App-Version` dicatat di access log                                                                                                                                               | backend              | Fase 0         | [x]    | #70       |
 | BE-04 | ~~Origin web masuk `APP_CORS_ALLOWED_ORIGINS`~~ Tidak diperlukan: API diakses di origin yang sama (D10). Gantinya: rule `/api` di ingress host web                                                               | gitops ingress       | Fase 1         | [ ]    |           |
-| BE-05 | Aturan CORS bucket MinIO untuk origin web (PUT/POST upload)                                                                                                                                                      | infra MinIO          | Fase 4         | [ ]    |           |
+| BE-05 | ~~Aturan CORS bucket MinIO untuk origin web~~ Tidak diperlukan: MinIO sudah menjawab preflight dan upload dari `app-dev-narrativ` dengan header CORS yang benar (diuji)                                          | infra MinIO          | Fase 4         | [x]    | –         |
 | BE-06 | Origin web ditambahkan ke _Authorized JavaScript origins_ OAuth client dev dan prod                                                                                                                              | Google Cloud Console | Fase 8         | [ ]    |           |
 | BE-07 | Endpoint publik read-only: `GET /public/posts/{id}`, `GET /public/users/{username}`                                                                                                                              | backend              | Fase 6         | [ ]    |           |
 | BE-08 | URL media stabil untuk `og:image` (redirect 302 ke presigned URL baru)                                                                                                                                           | backend              | Fase 6         | [ ]    |           |
@@ -250,17 +250,23 @@ dan Google Client ID.
 - [x] BE-17 merged dan pod backend dev di-restart: login di `app-dev-narrativ` berfungsi di browser (Playwright)
 - [x] Profil, tab Media, followers, dan profil sendiri diuji dengan data dev. Tile grid Media diperbaiki agar persegi
 
-### Fase 4: Membuat konten dan interaksi ⚪
+### Fase 4: Membuat konten dan interaksi ✅
 
-- [ ] BE-05 selesai, origin MinIO ditambahkan ke CSP `connect-src` untuk upload
-- [ ] Buat post: maksimal 5 media, validasi tipe dan ukuran, presigned upload dengan progress, retry, batal
-- [ ] Hapus post sendiri
-- [ ] Like/unlike dengan optimistic update
-- [ ] Komentar, reply bertingkat, hapus komentar, pin komentar, quote caption
-- [ ] Follow/unfollow dengan optimistic update
+- [x] BE-05 tidak diperlukan (MinIO sudah mengizinkan origin web). Origin MinIO ditambahkan ke CSP `connect-src`
+- [x] Buat post (dialog dari tombol di sidebar, tombol melayang di mobile): caption maks. 500, maks. 5 media, validasi
+      tipe dan ukuran seperti backend (foto 5 MB, video mp4/mov/webm 50 MB), upload langsung ke MinIO lewat presigned
+      POST form dengan progress per file, coba lagi tanpa mengulang file yang sudah terupload, tutup = batal
+- [x] Hapus post sendiri (dengan konfirmasi), hilang dari semua feed di cache
+- [x] Like/unlike optimistic di semua salinan cache, kembali semula kalau ditolak
+- [x] Komentar dan reply (satu tingkat, seperti backend), hapus komentar (konfirmasi), pin/lepas pin oleh pemilik post
+- [x] Follow/unfollow optimistic dari profil (jumlah pengikut ikut berubah), tidak tampil di profil sendiri
+- [x] Diuji langsung terhadap backend dev di Chrome (Playwright), pada konten akun uji sendiri: buat post dengan
+      gambar sungguhan, like, komentar, reply, pin, hapus reply, hapus post
+- [ ] Quote caption pada komentar (`quoteText`) dipindah ke Fase 5
 
 ### Fase 5: Akun, notifikasi in-app, dan keamanan ⚪
 
+- [ ] Quote caption pada komentar (`quoteText`, hanya komentar level atas, teks harus ada di caption)
 - [ ] Edit profil, upload/ganti/hapus foto profil
 - [ ] Ganti email lewat OTP (sesi baru lewat cookie)
 - [ ] Inbox notifikasi: daftar, jumlah belum dibaca, tandai sudah dibaca
@@ -372,3 +378,4 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-20 | Fase 2 selesai. Fase 3 di branch `feat/read-content`. Ditemukan: POST dari browser di `app-dev-narrativ` ditolak 403 (BE-17, BE-18). BE-16 untuk profil by username. D14 (virtualisasi ditunda). Aturan import antar fitur lewat `index.ts` |
 | 2026-11-20 | BE-16 (backend #72) dan BE-17 (gitops #13) merged. Login di `app-dev-narrativ` berfungsi. Fase 3 selesai (PR #3)                                                                                                                            |
 | 2026-11-20 | Fase 1: fondasi selesai di repo. Keputusan D10–D13 (API same-origin, dark-only, CSP hash, nginx sampai Fase 6), React Router 8, BE-04 diganti rule ingress, BE-15 ditambahkan                                                               |
+| 2026-11-20 | Fase 4 selesai (PR #4). BE-05 tidak diperlukan. Layout tidak lagi meng-import fitur (slot di `AppShell`)                                                                                                                                    |
