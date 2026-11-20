@@ -3,7 +3,7 @@
 Rencana pengembangan NARRATIV versi web (client untuk role `USER`, setara aplikasi Android). Dokumen ini acuan utama:
 apa yang harus disiapkan di backend dan infra, urutan fase pengembangan web, serta progress tiap item.
 
-- **Status:** Fase 0 dan 1 selesai, Fase 2 berjalan
+- **Status:** Fase 0–3 selesai, berikutnya Fase 4
 - **Dibuat:** 2026-11-20
 - **Repo terkait:** `narrativ-backend`, `narrativ-android`, `homelabs-gitops`, `web-admin`, `web-landing`
 - **Lokasi dokumen:** `narrativ-web-client/docs/PLAN.md`
@@ -15,18 +15,18 @@ Status fase di tabel ringkasan ikut diperbarui. Item yang batal dicoret (`~~...~
 
 ## 1. Ringkasan progress
 
-| Fase | Isi                                          | Status      |
-| ---- | -------------------------------------------- | ----------- |
-| 0    | Persiapan backend dan infra                  | ✅ Selesai  |
-| 1    | Fondasi dan walking skeleton (deploy ke dev) | ✅ Selesai  |
-| 2    | Autentikasi lewat API in-app (tanpa OAuth)   | ✅ Selesai  |
-| 3    | Membaca konten (feed, post, profil, search)  | 🟡 Berjalan |
-| 4    | Membuat konten dan interaksi                 | ⚪ Belum    |
-| 5    | Akun, notifikasi in-app, dan keamanan        | ⚪ Belum    |
-| 6    | Sharing publik dan SEO (SSR)                 | ⚪ Belum    |
-| 7    | Web push dan PWA                             | ⚪ Belum    |
-| 8    | Google Sign-In (OAuth)                       | ⚪ Belum    |
-| 9    | Hardening dan launch prod                    | ⚪ Belum    |
+| Fase | Isi                                          | Status     |
+| ---- | -------------------------------------------- | ---------- |
+| 0    | Persiapan backend dan infra                  | ✅ Selesai |
+| 1    | Fondasi dan walking skeleton (deploy ke dev) | ✅ Selesai |
+| 2    | Autentikasi lewat API in-app (tanpa OAuth)   | ✅ Selesai |
+| 3    | Membaca konten (feed, post, profil, search)  | ✅ Selesai |
+| 4    | Membuat konten dan interaksi                 | ⚪ Belum   |
+| 5    | Akun, notifikasi in-app, dan keamanan        | ⚪ Belum   |
+| 6    | Sharing publik dan SEO (SSR)                 | ⚪ Belum   |
+| 7    | Web push dan PWA                             | ⚪ Belum   |
+| 8    | Google Sign-In (OAuth)                       | ⚪ Belum   |
+| 9    | Hardening dan launch prod                    | ⚪ Belum   |
 
 Legenda: ⚪ belum, 🟡 berjalan, ✅ selesai, ⛔ terblokir
 
@@ -128,8 +128,8 @@ Kolom _Kapan_ menunjukkan paling lambat item harus selesai.
 | BE-13 | (Opsional) Grace window rotasi refresh token, dievaluasi setelah Fase 2                                                                                                                                          | backend              | Setelah Fase 2 | [ ]    |           |
 | BE-14 | (Opsional) Android mengirim `X-Client-Platform: android` dan `X-App-Version`                                                                                                                                     | android              | Kapan saja     | [ ]    |           |
 | BE-15 | Response 4xx/5xx yang dibuat otomatis oleh springdoc dari exception handler (schema kosong) diganti dengan `ErrorResponse`                                                                                       | backend              | Fase 2         | [x]    | #71       |
-| BE-16 | `GET /users/by-username/{username}` untuk URL profil `/u/{username}`, serta `page`/`size` di dokumen OpenAPI `GET /users`                                                                                        | backend              | Fase 3         | 🟡 PR  | #72       |
-| BE-17 | Origin web masuk `APP_CORS_ALLOWED_ORIGINS` dev (sementara). Di belakang Cloudflare + ingress, backend melihat request sebagai `http://`, sehingga origin `https://` dianggap lintas origin dan POST ditolak 403 | gitops configmap     | Fase 3         | 🟡 PR  | gitops#13 |
+| BE-16 | `GET /users/by-username/{username}` untuk URL profil `/u/{username}`, serta `page`/`size` di dokumen OpenAPI `GET /users`                                                                                        | backend              | Fase 3         | [x]    | #72       |
+| BE-17 | Origin web masuk `APP_CORS_ALLOWED_ORIGINS` dev (sementara). Di belakang Cloudflare + ingress, backend melihat request sebagai `http://`, sehingga origin `https://` dianggap lintas origin dan POST ditolak 403 | gitops configmap     | Fase 3         | [x]    | gitops#13 |
 | BE-18 | Akar masalah BE-17: ingress-nginx `use-forwarded-headers: "true"` agar `X-Forwarded-Proto: https` dari Cloudflare diteruskan. Setelah itu entri BE-17 tidak diperlukan lagi                                      | rke2 HelmChartConfig | Fase 9         | [ ]    |           |
 
 ### Detail BE-01: Envelope di OpenAPI
@@ -231,7 +231,7 @@ dan Google Client ID.
       body), refresh tanpa body, `/users/me`, logout, refresh setelah logout ditolak
 - [ ] Evaluasi BE-13 berdasarkan perilaku multi-tab (setelah web client dipakai di dev)
 
-### Fase 3: Membaca konten 🟡
+### Fase 3: Membaca konten ✅
 
 - [x] Origin MinIO (`https://infra-minio.rizkysiregar.my.id`, sama untuk dev dan prod) ditambahkan ke CSP `img-src`
       dan `media-src`
@@ -246,8 +246,9 @@ dan Google Client ID.
       per menit)
 - [x] Diuji dengan data dev lewat build produksi + proxy: login, sesi pulih setelah reload, beranda, jelajahi,
       detail post dengan 3 gambar, search, desktop dan mobile 390px
-- [ ] BE-16 merged, lalu `npm run api:generate` (sementara `schema.d.ts` ditambah manual untuk endpoint itu)
-- [ ] BE-17 merged dan pod backend dev di-restart: login di `app-dev-narrativ` kembali berfungsi
+- [x] BE-16 merged, lalu `npm run api:generate` (sama dengan tambahan manual sementara)
+- [x] BE-17 merged dan pod backend dev di-restart: login di `app-dev-narrativ` berfungsi di browser (Playwright)
+- [x] Profil, tab Media, followers, dan profil sendiri diuji dengan data dev. Tile grid Media diperbaiki agar persegi
 
 ### Fase 4: Membuat konten dan interaksi ⚪
 
@@ -369,4 +370,5 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-20 | Fase 2: alur auth in-app selesai di branch `feat/auth`. BE-15 di PR backend #71                                                                                                                                                             |
 | 2026-11-20 | Fase 1 selesai: web client live di `app-dev-narrativ`. PR #1 (auth) dan backend #71 merged, tipe API di-generate ulang. Pipeline membersihkan workspace sebelum verify                                                                      |
 | 2026-11-20 | Fase 2 selesai. Fase 3 di branch `feat/read-content`. Ditemukan: POST dari browser di `app-dev-narrativ` ditolak 403 (BE-17, BE-18). BE-16 untuk profil by username. D14 (virtualisasi ditunda). Aturan import antar fitur lewat `index.ts` |
+| 2026-11-20 | BE-16 (backend #72) dan BE-17 (gitops #13) merged. Login di `app-dev-narrativ` berfungsi. Fase 3 selesai (PR #3)                                                                                                                            |
 | 2026-11-20 | Fase 1: fondasi selesai di repo. Keputusan D10–D13 (API same-origin, dark-only, CSP hash, nginx sampai Fase 6), React Router 8, BE-04 diganti rule ingress, BE-15 ditambahkan                                                               |
