@@ -286,7 +286,7 @@ Dipisah dari Fase 2 karena butuh konfigurasi bolak-balik di Firebase dan Google 
 - [ ] E2E Playwright untuk alur utama di CI: login, buka feed, buat post, like, komentar
 - [ ] Sentry/GlitchTip terpasang dengan source map
 - [ ] BE-12, lalu App Check `enforce` dievaluasi
-- [ ] BE-04 untuk prod, overlay prod di gitops, host `app-narrativ.rizkysiregar.my.id`
+- [ ] App gitops prod `narrativ-web-client` (ingress dengan rule `/api` ke backend prod), host `app-narrativ.rizkysiregar.my.id`
 - [ ] Link dari `web-landing` ke web app
 
 ---
