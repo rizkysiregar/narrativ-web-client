@@ -1,3 +1,4 @@
+import { Quote, X } from "lucide-react";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -6,6 +7,7 @@ import { Alert } from "~/shared/ui/alert";
 import { Button } from "~/shared/ui/button";
 
 import { MAX_COMMENT, useAddComment } from "../api";
+import { useCaptionSelection } from "../use-caption-selection";
 
 interface CommentComposerProps {
   postId: string;
@@ -18,6 +20,9 @@ interface CommentComposerProps {
 export function CommentComposer({ postId, replyTo, onDone, autoFocus = false }: CommentComposerProps) {
   const { t } = useTranslation();
   const [content, setContent] = useState("");
+  const [quote, setQuote] = useState<string | null>(null);
+  // only top-level comments quote the caption
+  const selection = useCaptionSelection(replyTo ? "" : postId);
   const id = useId();
   const add = useAddComment(postId);
   const text = content.trim();
@@ -29,16 +34,48 @@ export function CommentComposer({ postId, replyTo, onDone, autoFocus = false }: 
       onSubmit={(event) => {
         event.preventDefault();
         add.mutate(
-          { content: text, ...(replyTo && { parentId: replyTo.id }) },
+          { content: text, ...(replyTo && { parentId: replyTo.id }), ...(quote && { quoteText: quote }) },
           {
             onSuccess: () => {
               setContent("");
+              setQuote(null);
               onDone?.();
             },
           },
         );
       }}
     >
+      {quote && (
+        <blockquote className="flex items-start gap-2 rounded-xl border-l-4 border-lilac bg-plum px-3 py-2 text-sm text-muted">
+          <span className="min-w-0 flex-1 break-words">“{quote}”</span>
+          <button
+            type="button"
+            aria-label={t("comments.removeQuote")}
+            className="rounded-full p-0.5 hover:text-fg"
+            onClick={() => {
+              setQuote(null);
+            }}
+          >
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        </blockquote>
+      )}
+      {!replyTo && selection && selection !== quote && (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-lilac hover:underline"
+          // keep the selection: a mouse down elsewhere would clear it before the click
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => {
+            setQuote(selection);
+          }}
+        >
+          <Quote className="size-4" aria-hidden="true" />
+          {t("comments.quoteSelection")}
+        </button>
+      )}
       <label htmlFor={id} className="sr-only">
         {replyTo ? t("comments.replyTo", { username: replyTo.username }) : t("comments.write")}
       </label>

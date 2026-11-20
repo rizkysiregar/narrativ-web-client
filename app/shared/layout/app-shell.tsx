@@ -6,7 +6,7 @@ import { cn } from "~/shared/lib/cn";
 import { Logo, LogoMark } from "~/shared/ui/logo";
 
 import { LanguageSwitcher } from "./language-switcher";
-import { NAV_ITEMS } from "./nav";
+import { NAV_ITEMS, type NavItem } from "./nav";
 import { OfflineBanner } from "./offline-banner";
 
 interface AppShellProps {
@@ -17,6 +17,8 @@ interface AppShellProps {
   /** Who is signed in and the way out: in the sidebar, and its compact form in the phone top bar. */
   account?: ReactNode;
   accountCompact?: ReactNode;
+  /** Counts shown on navigation items, e.g. unread notifications. */
+  badges?: Partial<Record<NavItem["labelKey"], number>>;
 }
 
 /**
@@ -29,6 +31,7 @@ export function AppShell({
   floatingAction,
   account,
   accountCompact,
+  badges = {},
 }: AppShellProps) {
   const { t } = useTranslation();
 
@@ -53,8 +56,11 @@ export function AppShell({
                       )
                     }
                   >
-                    <Icon className="size-6" aria-hidden="true" />
+                    <NavIcon icon={Icon} count={badges[labelKey]} />
                     {t(labelKey)}
+                    {Boolean(badges[labelKey]) && (
+                      <span className="sr-only">{t("nav.unread", { count: badges[labelKey] })}</span>
+                    )}
                   </NavLink>
                 </li>
               ))}
@@ -100,17 +106,37 @@ export function AppShell({
               <NavLink
                 to={to}
                 end={to === "/"}
-                aria-label={t(labelKey)}
+                aria-label={
+                  badges[labelKey]
+                    ? `${t(labelKey)}, ${t("nav.unread", { count: badges[labelKey] })}`
+                    : t(labelKey)
+                }
                 className={({ isActive }) =>
                   cn("flex size-14 items-center justify-center", isActive ? "text-fg" : "text-muted")
                 }
               >
-                <Icon className="size-6" aria-hidden="true" />
+                <NavIcon icon={Icon} count={badges[labelKey]} />
               </NavLink>
             </li>
           ))}
         </ul>
       </nav>
     </div>
+  );
+}
+
+function NavIcon({ icon: Icon, count }: { icon: NavItem["icon"]; count: number | undefined }) {
+  return (
+    <span className="relative">
+      <Icon className="size-6" aria-hidden="true" />
+      {Boolean(count) && (
+        <span
+          aria-hidden="true"
+          className="absolute -top-1.5 -right-2 min-w-4.5 rounded-full bg-blush px-1 text-center text-[0.7rem] leading-4.5 font-bold text-ink"
+        >
+          {count !== undefined && count > 99 ? "99+" : count}
+        </span>
+      )}
+    </span>
   );
 }

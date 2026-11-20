@@ -3,7 +3,7 @@
 Rencana pengembangan NARRATIV versi web (client untuk role `USER`, setara aplikasi Android). Dokumen ini acuan utama:
 apa yang harus disiapkan di backend dan infra, urutan fase pengembangan web, serta progress tiap item.
 
-- **Status:** Fase 0–4 selesai, berikutnya Fase 5
+- **Status:** Fase 0–5 selesai, berikutnya Fase 6
 - **Dibuat:** 2026-11-20
 - **Repo terkait:** `narrativ-backend`, `narrativ-android`, `homelabs-gitops`, `web-admin`, `web-landing`
 - **Lokasi dokumen:** `narrativ-web-client/docs/PLAN.md`
@@ -22,7 +22,7 @@ Status fase di tabel ringkasan ikut diperbarui. Item yang batal dicoret (`~~...~
 | 2    | Autentikasi lewat API in-app (tanpa OAuth)   | ✅ Selesai |
 | 3    | Membaca konten (feed, post, profil, search)  | ✅ Selesai |
 | 4    | Membuat konten dan interaksi                 | ✅ Selesai |
-| 5    | Akun, notifikasi in-app, dan keamanan        | ⚪ Belum   |
+| 5    | Akun, notifikasi in-app, dan keamanan        | ✅ Selesai |
 | 6    | Sharing publik dan SEO (SSR)                 | ⚪ Belum   |
 | 7    | Web push dan PWA                             | ⚪ Belum   |
 | 8    | Google Sign-In (OAuth)                       | ⚪ Belum   |
@@ -264,16 +264,25 @@ dan Google Client ID.
       gambar sungguhan, like, komentar, reply, pin, hapus reply, hapus post
 - [ ] Quote caption pada komentar (`quoteText`) dipindah ke Fase 5
 
-### Fase 5: Akun, notifikasi in-app, dan keamanan ⚪
+### Fase 5: Akun, notifikasi in-app, dan keamanan ✅
 
-- [ ] Quote caption pada komentar (`quoteText`, hanya komentar level atas, teks harus ada di caption)
-- [ ] Edit profil, upload/ganti/hapus foto profil
-- [ ] Ganti email lewat OTP (sesi baru lewat cookie)
-- [ ] Inbox notifikasi: daftar, jumlah belum dibaca, tandai sudah dibaca
-- [ ] Blokir/buka blokir dan daftar blokir
-- [ ] Report post, komentar, dan user
-- [ ] Hapus akun
-- [ ] Link ke halaman legal (privacy policy, terms)
+- [x] Quote caption pada komentar: pilih teks di caption, tombol "Kutip teks yang dipilih", kutipan tampil di komentar
+- [x] Pengaturan `/settings` (link di sidebar, ikon di top bar mobile): akun, bahasa, kebijakan privasi, ketentuan,
+      hapus akun, keluar
+- [x] Edit profil (nama, username; sesi ikut username baru), upload/ganti/hapus foto profil (JPG/PNG/WebP 2 MB,
+      langsung ke MinIO dengan progress). Tombol "Edit profil" di profil sendiri
+- [x] Ganti email lewat OTP + kata sandi; sesi baru dari backend dipakai, perangkat lain keluar
+- [x] Inbox notifikasi `/notifications`: pengelompokan aktor ("@budi dan 3 lainnya"), tandai dibaca saat dibuka,
+      tandai semua dibaca, badge jumlah belum dibaca di navigasi (polling 60 detik sampai web push di Fase 7)
+- [x] Blokir dari menu "lainnya" di profil, post, dan komentar orang lain (konfirmasi, semua data di-fetch ulang),
+      daftar akun yang diblokir dengan buka blokir
+- [x] Report post, komentar, dan user (7 alasan, "Lainnya" wajib deskripsi), pesan backend untuk laporan ganda
+- [x] Hapus akun dengan kata sandi, sesi dan cache dikosongkan
+- [x] Link ke halaman legal (web-landing, sesuai bahasa)
+- [x] Diuji langsung terhadap backend dev di Chrome dengan akun sekali pakai: edit profil, foto profil, inbox, daftar
+      blokir, quote caption, hapus akun (akun tidak bisa masuk lagi). Report, blokir, dan ganti email hanya unit test
+      (efek ke moderasi, user lain, dan email sungguhan)
+- [ ] Akun Google tanpa kata sandi: ganti email dan hapus akun butuh ID token Google, menyusul di Fase 8
 
 ### Fase 6: Sharing publik dan SEO ⚪
 
@@ -304,6 +313,8 @@ Dipisah dari Fase 2 karena butuh konfigurasi bolak-balik di Firebase dan Google 
 
 ### Fase 9: Hardening dan launch prod ⚪
 
+- [ ] Cloudflare Web Analytics menyisipkan `static.cloudflareinsights.com/beacon.min.js` yang diblokir CSP: izinkan di
+      `script-src`/`connect-src`, atau matikan injeksi otomatis untuk hostname web
 - [ ] Content-Security-Policy ketat dan security headers
 - [ ] Audit aksesibilitas (keyboard, screen reader, kontras)
 - [ ] Budget Lighthouse (Performance dan Accessibility ≥ 90 di mobile)
@@ -381,3 +392,4 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-20 | Fase 1: fondasi selesai di repo. Keputusan D10–D13 (API same-origin, dark-only, CSP hash, nginx sampai Fase 6), React Router 8, BE-04 diganti rule ingress, BE-15 ditambahkan                                                               |
 | 2026-11-20 | Fase 4 selesai (PR #4). BE-05 tidak diperlukan. Layout tidak lagi meng-import fitur (slot di `AppShell`)                                                                                                                                    |
 | 2026-11-20 | Build merge #3 dan #4 gagal di lint (tipe route belum di-generate di CI); dev masih Fase 2. Diperbaiki di PR #5                                                                                                                             |
+| 2026-11-20 | Fase 5 selesai (PR #6). Ditemukan: beacon Cloudflare Web Analytics diblokir CSP (item Fase 9)                                                                                                                                               |

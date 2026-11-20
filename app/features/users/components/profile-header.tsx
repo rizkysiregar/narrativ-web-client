@@ -1,12 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import { useSession } from "~/api/session";
+import { SafetyMenu } from "~/features/safety";
 import { formatCount } from "~/shared/lib/format";
 import { nonBlank } from "~/shared/lib/text";
 import { Avatar } from "~/shared/ui/avatar";
 
-import { Button } from "~/shared/ui/button";
+import { Button, buttonVariants } from "~/shared/ui/button";
 
 import { useFollow, useFollowStatus, type PublicUser } from "../api";
 
@@ -14,6 +15,7 @@ export function ProfileHeader({ user }: { user: PublicUser }) {
   const { t, i18n } = useTranslation();
   const status = useFollowStatus(user.id);
   const self = useSession((state) => state.user?.userId === user.id);
+  const navigate = useNavigate();
   const username = user.username ?? "";
   const count = (value: number | undefined) =>
     value === undefined ? "–" : formatCount(value, i18n.language);
@@ -40,9 +42,23 @@ export function ProfileHeader({ user }: { user: PublicUser }) {
           </Link>
         </nav>
       </div>
-      {!self && user.id && status.data && (
-        <FollowButton userId={user.id} following={status.data.isFollowing ?? false} username={username} />
-      )}
+      <div className="flex items-center gap-2 sm:ml-auto">
+        {self && (
+          <Link to="/settings/profile" className={buttonVariants({ variant: "secondary" })}>
+            {t("profile.edit")}
+          </Link>
+        )}
+        {!self && user.id && status.data && (
+          <FollowButton userId={user.id} following={status.data.isFollowing ?? false} username={username} />
+        )}
+        {!self && user.id && (
+          <SafetyMenu
+            target={{ type: "USER", id: user.id }}
+            user={{ id: user.id, username }}
+            onBlocked={() => void navigate("/", { replace: true })}
+          />
+        )}
+      </div>
     </header>
   );
 }
@@ -62,7 +78,6 @@ function FollowButton({
   return (
     <Button
       variant={following ? "secondary" : "primary"}
-      className="sm:ml-auto"
       aria-pressed={following}
       aria-label={following ? t("profile.unfollowUser", { username }) : t("profile.followUser", { username })}
       onClick={() => {

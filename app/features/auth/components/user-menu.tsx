@@ -1,11 +1,12 @@
-import { LogOut } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 import { useSession } from "~/api/session";
 import { useLogout } from "../api";
-import { Button } from "~/shared/ui/button";
+import { Button, buttonVariants } from "~/shared/ui/button";
 
-/** Who is signed in, and the way out. `compact` is the icon-only version of the phone top bar. */
+/** Who is signed in, settings and the way out. `compact` is the settings icon of the phone top bar (sign out is in settings). */
 export function UserMenu({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation();
   const username = useSession((state) => state.user?.username);
@@ -13,17 +14,13 @@ export function UserMenu({ compact = false }: { compact?: boolean }) {
 
   if (compact) {
     return (
-      <Button
-        variant="ghost"
-        size="sm"
-        aria-label={t("auth.logout")}
-        disabled={logout.isPending}
-        onClick={() => {
-          logout.mutate();
-        }}
+      <Link
+        to="/settings"
+        aria-label={t("settings.title")}
+        className={buttonVariants({ variant: "ghost", size: "sm" })}
       >
-        <LogOut className="size-5" aria-hidden="true" />
-      </Button>
+        <Settings className="size-5" aria-hidden="true" />
+      </Link>
     );
   }
   return (
@@ -33,6 +30,10 @@ export function UserMenu({ compact = false }: { compact?: boolean }) {
           {t("auth.signedInAs", { username: `@${username}` })}
         </p>
       )}
+      <Link to="/settings" className={buttonVariants({ variant: "ghost", className: "justify-start" })}>
+        <Settings className="size-5" aria-hidden="true" />
+        {t("settings.title")}
+      </Link>
       <Button
         variant="ghost"
         className="justify-start"

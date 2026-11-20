@@ -10,6 +10,9 @@ import { Avatar } from "~/shared/ui/avatar";
 import { ConfirmDialog } from "~/shared/ui/confirm-dialog";
 import { LoadMore } from "~/shared/ui/load-more";
 
+import { useSession } from "~/api/session";
+import { SafetyMenu } from "~/features/safety";
+
 import { useDeleteComment, usePinComment, useReplies, type Comment } from "../api";
 import { CommentComposer } from "./comment-composer";
 
@@ -33,6 +36,7 @@ export function CommentItem({ comment, postId, postOwner, isReply = false }: Com
   const username = comment.username ?? "";
   const takenDown = comment.moderationStatus === "TAKEN_DOWN";
   const replyCount = comment.replyCount ?? 0;
+  const own = useSession((state) => state.user?.userId === comment.userId);
 
   const action = "rounded-full px-2 py-0.5 font-semibold hover:bg-plum hover:text-fg";
 
@@ -68,14 +72,21 @@ export function CommentItem({ comment, postId, postOwner, isReply = false }: Com
             {t("comments.takenDown")}
           </p>
         ) : (
-          <p className="break-words whitespace-pre-line">
-            {isReply && comment.replyToUsername && (
-              <Link to={`/u/${comment.replyToUsername}`} className="mr-1 text-lilac hover:underline">
-                @{comment.replyToUsername}
-              </Link>
+          <>
+            {comment.quoteText && (
+              <blockquote className="rounded-lg border-l-4 border-lilac/60 bg-plum px-3 py-1.5 text-sm text-muted">
+                “{comment.quoteText}”
+              </blockquote>
             )}
-            {comment.commentContent}
-          </p>
+            <p className="break-words whitespace-pre-line">
+              {isReply && comment.replyToUsername && (
+                <Link to={`/u/${comment.replyToUsername}`} className="mr-1 text-lilac hover:underline">
+                  @{comment.replyToUsername}
+                </Link>
+              )}
+              {comment.commentContent}
+            </p>
+          </>
         )}
 
         <div className="-ml-2 flex flex-wrap gap-1 text-sm text-muted">
@@ -103,6 +114,9 @@ export function CommentItem({ comment, postId, postOwner, isReply = false }: Com
             >
               {comment.pinned ? t("comments.unpin") : t("comments.pin")}
             </button>
+          )}
+          {!own && comment.userId && (
+            <SafetyMenu target={{ type: "COMMENT", id }} user={{ id: comment.userId, username }} />
           )}
           {comment.canDelete && (
             <button

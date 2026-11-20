@@ -13,7 +13,7 @@ import { PasswordInput } from "~/shared/ui/password-input";
 import { useLogin } from "../api";
 import { loginSchema, type LoginValues } from "../schemas";
 import { AuthCard } from "./auth-card";
-import { FormError } from "./form-error";
+import { FormError } from "~/shared/ui/form-error";
 
 export function LoginForm() {
   const { t } = useTranslation();

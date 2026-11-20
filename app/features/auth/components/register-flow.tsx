@@ -15,7 +15,7 @@ import { PasswordInput } from "~/shared/ui/password-input";
 import { register, sendRegisterOtp, verifyRegisterOtp } from "../api";
 import { registerSchema, type RegisterValues } from "../schemas";
 import { AuthCard } from "./auth-card";
-import { FormError } from "./form-error";
+import { FormError } from "~/shared/ui/form-error";
 import { OtpStep } from "./otp-step";
 
 // the backend keeps a registration token for 10 minutes; stop reusing it a little earlier

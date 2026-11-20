@@ -8,11 +8,9 @@
     "explore": "Jelajahi",
     "search": "Cari",
     "notifications": "Notifikasi",
-    "profile": "Profil"
-  },
-  "comingSoon": {
-    "title": "Segera hadir",
-    "body": "Halaman ini hadir di fase berikutnya dari NARRATIV versi web."
+    "profile": "Profil",
+    "unread_one": "{{count}} belum dibaca",
+    "unread_other": "{{count}} belum dibaca"
   },
   "notFound": {
     "title": "Halaman tidak ditemukan",
@@ -177,7 +175,8 @@
     "follow": "Ikuti",
     "followingButton": "Mengikuti",
     "followUser": "Ikuti @{{username}}",
-    "unfollowUser": "Berhenti mengikuti @{{username}}"
+    "unfollowUser": "Berhenti mengikuti @{{username}}",
+    "edit": "Edit profil"
   },
   "search": {
     "label": "Cari orang",
@@ -224,6 +223,115 @@
     "empty": "Belum ada komentar. Jadilah yang pertama.",
     "showReplies_one": "Lihat {{count}} balasan",
     "showReplies_other": "Lihat {{count}} balasan",
-    "hideReplies": "Sembunyikan balasan"
+    "hideReplies": "Sembunyikan balasan",
+    "quoteSelection": "Kutip teks yang dipilih",
+    "removeQuote": "Hapus kutipan"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "account": "Akun",
+    "app": "Aplikasi",
+    "profile": "Edit profil",
+    "email": "Ubah email",
+    "blocked": "Akun yang diblokir",
+    "privacy": "Kebijakan privasi",
+    "terms": "Ketentuan",
+    "deleteAccount": "Hapus akun"
+  },
+  "account": {
+    "photo": {
+      "add": "Tambah foto",
+      "change": "Ganti foto",
+      "remove": "Hapus",
+      "hint": "JPG, PNG, atau WebP, maksimal 2 MB.",
+      "type": "Gunakan gambar JPG, PNG, atau WebP.",
+      "size": "Ukuran gambar maksimal 2 MB.",
+      "uploading": "Mengunggah foto profil",
+      "saved": "Foto profil diperbarui",
+      "removed": "Foto profil dihapus"
+    },
+    "profile": {
+      "save": "Simpan",
+      "saved": "Profil disimpan",
+      "usernameHint": "Tautan profil Anda ikut berubah."
+    },
+    "email": {
+      "current": "Email Anda saat ini {{email}}.",
+      "intro": "Masukkan email baru Anda. Kami akan mengirim kode ke email tersebut untuk memastikan itu milik Anda.",
+      "new": "Email baru",
+      "password": "Kata sandi saat ini",
+      "passwordHint": "Untuk memastikan ini Anda.",
+      "confirm": "Ubah email",
+      "changed": "Email Anda telah diubah. Anda telah dikeluarkan dari perangkat lain."
+    },
+    "delete": {
+      "intro": "Menghapus akun tidak bisa dibatalkan.",
+      "posts": "Profil, postingan, dan komentar Anda akan hilang.",
+      "final": "Anda tidak bisa masuk lagi dengan akun ini.",
+      "password": "Kata sandi saat ini",
+      "confirm": "Hapus akun saya",
+      "done": "Akun Anda telah dihapus."
+    }
+  },
+  "safety": {
+    "more": "Opsi lainnya",
+    "options": "Opsi",
+    "report": {
+      "action": {
+        "POST": "Laporkan postingan",
+        "COMMENT": "Laporkan komentar",
+        "USER": "Laporkan @{{username}}"
+      },
+      "title": {
+        "POST": "Laporkan postingan",
+        "COMMENT": "Laporkan komentar",
+        "USER": "Laporkan akun"
+      },
+      "question": "Mengapa Anda melaporkan ini?",
+      "reason": {
+        "SPAM": "Spam",
+        "HARASSMENT": "Pelecehan atau perundungan",
+        "HATE_SPEECH": "Ujaran kebencian",
+        "SEXUAL_CONTENT": "Konten seksual",
+        "VIOLENCE": "Kekerasan",
+        "MISINFORMATION": "Informasi palsu",
+        "OTHER": "Lainnya"
+      },
+      "description": "Ceritakan lebih lanjut",
+      "submit": "Kirim laporan",
+      "sent": "Terima kasih, moderator kami akan memeriksanya."
+    },
+    "block": {
+      "action": "Blokir @{{username}}",
+      "title": "Blokir @{{username}}?",
+      "body": "Anda dan dia tidak akan lagi melihat postingan, komentar, atau profil satu sama lain, dan saling berhenti mengikuti. Anda bisa membuka blokir di Pengaturan.",
+      "confirm": "Blokir",
+      "done": "@{{username}} diblokir"
+    },
+    "blocked": {
+      "empty": "Tidak ada akun yang diblokir",
+      "emptyBody": "Orang yang Anda blokir akan tampil di sini.",
+      "unblock": "Buka blokir",
+      "unblockUser": "Buka blokir @{{username}}",
+      "unblocked": "Blokir @{{username}} dibuka"
+    }
+  },
+  "notifications": {
+    "markAll": "Tandai semua sudah dibaca",
+    "empty": "Belum ada notifikasi",
+    "emptyBody": "Suka, komentar, dan pengikut baru akan tampil di sini.",
+    "unread": "Belum dibaca",
+    "type": {
+      "POST_LIKED": "{{actor}} menyukai postingan Anda",
+      "POST_LIKED_many": "{{actor}} dan {{count}} lainnya menyukai postingan Anda",
+      "POST_COMMENTED": "{{actor}} mengomentari postingan Anda",
+      "POST_COMMENTED_many": "{{actor}} dan {{count}} lainnya mengomentari postingan Anda",
+      "COMMENT_REPLIED": "{{actor}} membalas komentar Anda",
+      "COMMENT_REPLIED_many": "{{actor}} dan {{count}} lainnya membalas komentar Anda",
+      "FOLLOWED": "{{actor}} mulai mengikuti Anda",
+      "FOLLOWED_many": "{{actor}} dan {{count}} lainnya mulai mengikuti Anda",
+      "COMMENT_PINNED": "{{actor}} menyematkan komentar Anda",
+      "COMMENT_PINNED_many": "{{actor}} menyematkan komentar Anda"
+    }
   }
 }

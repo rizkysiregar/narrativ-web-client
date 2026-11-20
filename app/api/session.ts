@@ -46,6 +46,11 @@ export function startSession({ token, userId, username, role }: LoginResponse): 
   });
 }
 
+/** After the user changed their username: the session keeps showing the right one without signing in again. */
+export function updateSessionUser(changes: Partial<SessionUser>): void {
+  useSession.setState((state) => (state.user ? { user: { ...state.user, ...changes } } : {}));
+}
+
 export function endSession(endReason: string | null = null): void {
   useSession.setState({ status: "anonymous", accessToken: null, user: null, endReason });
 }

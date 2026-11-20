@@ -8,11 +8,9 @@
     "explore": "Explore",
     "search": "Search",
     "notifications": "Notifications",
-    "profile": "Profile"
-  },
-  "comingSoon": {
-    "title": "Coming soon",
-    "body": "This page arrives in a later phase of the NARRATIV web app."
+    "profile": "Profile",
+    "unread_one": "{{count}} unread",
+    "unread_other": "{{count}} unread"
   },
   "notFound": {
     "title": "Page not found",
@@ -177,7 +175,8 @@
     "follow": "Follow",
     "followingButton": "Following",
     "followUser": "Follow @{{username}}",
-    "unfollowUser": "Unfollow @{{username}}"
+    "unfollowUser": "Unfollow @{{username}}",
+    "edit": "Edit profile"
   },
   "search": {
     "label": "Search people",
@@ -224,6 +223,115 @@
     "empty": "No comments yet. Be the first.",
     "showReplies_one": "View {{count}} reply",
     "showReplies_other": "View {{count}} replies",
-    "hideReplies": "Hide replies"
+    "hideReplies": "Hide replies",
+    "quoteSelection": "Quote the selected text",
+    "removeQuote": "Remove quote"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "app": "App",
+    "profile": "Edit profile",
+    "email": "Change email",
+    "blocked": "Blocked accounts",
+    "privacy": "Privacy policy",
+    "terms": "Terms",
+    "deleteAccount": "Delete account"
+  },
+  "account": {
+    "photo": {
+      "add": "Add photo",
+      "change": "Change photo",
+      "remove": "Remove",
+      "hint": "JPG, PNG or WebP, up to 2 MB.",
+      "type": "Use a JPG, PNG or WebP picture.",
+      "size": "The picture can be up to 2 MB.",
+      "uploading": "Uploading profile photo",
+      "saved": "Profile photo updated",
+      "removed": "Profile photo removed"
+    },
+    "profile": {
+      "save": "Save",
+      "saved": "Profile saved",
+      "usernameHint": "Your profile link changes with it."
+    },
+    "email": {
+      "current": "Your email is {{email}}.",
+      "intro": "Enter your new email. We send a code there to make sure it is yours.",
+      "new": "New email",
+      "password": "Current password",
+      "passwordHint": "To make sure it is you.",
+      "confirm": "Change email",
+      "changed": "Your email was changed. Other devices were signed out."
+    },
+    "delete": {
+      "intro": "Deleting your account cannot be undone.",
+      "posts": "Your profile, posts and comments disappear.",
+      "final": "You cannot sign in again with this account.",
+      "password": "Current password",
+      "confirm": "Delete my account",
+      "done": "Your account was deleted."
+    }
+  },
+  "safety": {
+    "more": "More options",
+    "options": "Options",
+    "report": {
+      "action": {
+        "POST": "Report post",
+        "COMMENT": "Report comment",
+        "USER": "Report @{{username}}"
+      },
+      "title": {
+        "POST": "Report post",
+        "COMMENT": "Report comment",
+        "USER": "Report account"
+      },
+      "question": "Why are you reporting this?",
+      "reason": {
+        "SPAM": "Spam",
+        "HARASSMENT": "Harassment or bullying",
+        "HATE_SPEECH": "Hate speech",
+        "SEXUAL_CONTENT": "Sexual content",
+        "VIOLENCE": "Violence",
+        "MISINFORMATION": "False information",
+        "OTHER": "Something else"
+      },
+      "description": "Tell us more",
+      "submit": "Send report",
+      "sent": "Thanks, our moderators will take a look."
+    },
+    "block": {
+      "action": "Block @{{username}}",
+      "title": "Block @{{username}}?",
+      "body": "You will no longer see each other's posts, comments or profiles, and you stop following each other. You can unblock them in Settings.",
+      "confirm": "Block",
+      "done": "@{{username}} is blocked"
+    },
+    "blocked": {
+      "empty": "No blocked accounts",
+      "emptyBody": "People you block show up here.",
+      "unblock": "Unblock",
+      "unblockUser": "Unblock @{{username}}",
+      "unblocked": "@{{username}} is unblocked"
+    }
+  },
+  "notifications": {
+    "markAll": "Mark all as read",
+    "empty": "No notifications yet",
+    "emptyBody": "Likes, comments and new followers show up here.",
+    "unread": "Unread",
+    "type": {
+      "POST_LIKED": "{{actor}} liked your post",
+      "POST_LIKED_many": "{{actor}} and {{count}} others liked your post",
+      "POST_COMMENTED": "{{actor}} commented on your post",
+      "POST_COMMENTED_many": "{{actor}} and {{count}} others commented on your post",
+      "COMMENT_REPLIED": "{{actor}} replied to your comment",
+      "COMMENT_REPLIED_many": "{{actor}} and {{count}} others replied to your comment",
+      "FOLLOWED": "{{actor}} started following you",
+      "FOLLOWED_many": "{{actor}} and {{count}} others started following you",
+      "COMMENT_PINNED": "{{actor}} pinned your comment",
+      "COMMENT_PINNED_many": "{{actor}} pinned your comment"
+    }
   }
 }
