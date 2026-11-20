@@ -1,3 +1,4 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRoutesStub } from "react-router";
@@ -5,6 +6,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import NotFound from "~/routes/not-found";
 import { changeLanguage } from "~/shared/i18n";
+import { createQueryClient } from "~/shared/lib/query-client";
 
 import { AppShell } from "./app-shell";
 
@@ -23,7 +25,11 @@ function renderAt(path: string) {
     },
     { path: "*", Component: NotFound },
   ]);
-  render(<Stub initialEntries={[path]} />);
+  render(
+    <QueryClientProvider client={createQueryClient()}>
+      <Stub initialEntries={[path]} />
+    </QueryClientProvider>,
+  );
 }
 
 describe("AppShell", () => {

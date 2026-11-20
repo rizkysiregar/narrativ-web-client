@@ -19,7 +19,7 @@ Status fase di tabel ringkasan ikut diperbarui. Item yang batal dicoret (`~~...~
 | ---- | -------------------------------------------- | ----------- |
 | 0    | Persiapan backend dan infra                  | ✅ Selesai  |
 | 1    | Fondasi dan walking skeleton (deploy ke dev) | 🟡 Berjalan |
-| 2    | Autentikasi lewat API in-app (tanpa OAuth)   | ⚪ Belum    |
+| 2    | Autentikasi lewat API in-app (tanpa OAuth)   | 🟡 Berjalan |
 | 3    | Membaca konten (feed, post, profil, search)  | ⚪ Belum    |
 | 4    | Membuat konten dan interaksi                 | ⚪ Belum    |
 | 5    | Akun, notifikasi in-app, dan keamanan        | ⚪ Belum    |
@@ -125,7 +125,7 @@ Kolom _Kapan_ menunjukkan paling lambat item harus selesai.
 | BE-12 | Web app terdaftar di Firebase dengan App Check reCAPTCHA Enterprise, app id masuk `allowed-apps`                                                   | Firebase + backend   | Fase 9         | [ ]    |     |
 | BE-13 | (Opsional) Grace window rotasi refresh token, dievaluasi setelah Fase 2                                                                            | backend              | Setelah Fase 2 | [ ]    |     |
 | BE-14 | (Opsional) Android mengirim `X-Client-Platform: android` dan `X-App-Version`                                                                       | android              | Kapan saja     | [ ]    |     |
-| BE-15 | Response 4xx/5xx yang dibuat otomatis oleh springdoc dari exception handler (schema kosong) diganti dengan `ErrorResponse`                         | backend              | Fase 2         | [ ]    |     |
+| BE-15 | Response 4xx/5xx yang dibuat otomatis oleh springdoc dari exception handler (schema kosong) diganti dengan `ErrorResponse`                         | backend              | Fase 2         | 🟡 PR  | #71 |
 
 ### Detail BE-01: Envelope di OpenAPI
 
@@ -208,19 +208,23 @@ Setiap fase selesai kalau semua item tercentang dan _Definition of Done_ (bagian
 - [ ] Pipeline Jenkins `narrativ-web-client` dan Argo CD Application (dibuat manual, langkahnya di README gitops)
 - [ ] Halaman ter-deploy di `app-dev-narrativ.rizkysiregar.my.id`, `/healthz` menjawab 200, `/api/v1` sampai ke backend
 
-### Fase 2: Autentikasi lewat API in-app ⚪
+### Fase 2: Autentikasi lewat API in-app 🟡
 
 Hanya memakai endpoint auth milik backend sendiri. Login Google dipisah ke Fase 8 karena butuh konfigurasi Firebase
 dan Google Client ID.
 
-- [ ] BE-15 selesai, lalu `npm run api:generate`
-- [ ] Komponen form (shadcn/ui: input, label, form) + React Hook Form + Zod
-- [ ] Login username + password
-- [ ] Register dengan OTP email (dengan dan tanpa verifikasi, mengikuti `verificationRequired`)
-- [ ] Forgot password: kirim OTP, verifikasi, password baru
-- [ ] Silent refresh saat aplikasi dibuka, guard untuk route yang butuh login
-- [ ] Logout (cabut cookie), penanganan akun ter-ban
-- [ ] Evaluasi BE-13 berdasarkan perilaku multi-tab
+- [ ] BE-15 selesai (PR [backend#71](https://github.com/rizkysiregar/narrativ-backend/pull/71)), lalu `npm run api:generate`
+- [x] Komponen form (input, password dengan tombol tampilkan, form field dengan error yang terbaca screen reader,
+      alert) + React Hook Form + Zod. Aturan validasi mengikuti backend (username, password ≤ 72 byte, OTP)
+- [x] Login username + password, kembali ke halaman yang diminta (`?redirect=`, aman dari open redirect)
+- [x] Register dengan OTP email (dengan dan tanpa verifikasi, mengikuti `verificationRequired`), lalu langsung masuk.
+      Username yang sudah dipakai kembali ke form tanpa meminta kode lagi (token registrasi dipakai ulang < 9 menit)
+- [x] Forgot password: kirim OTP, verifikasi, password baru. Kirim ulang kode dengan jeda 60 detik
+- [x] Silent refresh saat aplikasi dibuka (`clientLoader` root), guard untuk route yang butuh login dan untuk tamu
+- [x] Logout (cabut cookie, kosongkan cache), alasan ban tampil di halaman login
+- [x] Diuji langsung terhadap backend dev lewat proxy: register, login (cookie tersimpan, tanpa `refreshToken` di
+      body), refresh tanpa body, `/users/me`, logout, refresh setelah logout ditolak
+- [ ] Evaluasi BE-13 berdasarkan perilaku multi-tab (setelah web client dipakai di dev)
 
 ### Fase 3: Membaca konten ⚪
 
@@ -348,4 +352,5 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-20 | Versi awal                                                                                                                                                                    |
 | 2026-11-20 | PR backend #70 dibuat (BE-01, BE-02, BE-03)                                                                                                                                   |
 | 2026-11-20 | #70 merged dan terverifikasi di dev. Fase 0 selesai. Google Sign-In dipindah ke Fase 8 tersendiri, hardening jadi Fase 9                                                      |
+| 2026-11-20 | Fase 2: alur auth in-app selesai di branch `feat/auth`. BE-15 di PR backend #71                                                                                               |
 | 2026-11-20 | Fase 1: fondasi selesai di repo. Keputusan D10–D13 (API same-origin, dark-only, CSP hash, nginx sampai Fase 6), React Router 8, BE-04 diganti rule ingress, BE-15 ditambahkan |

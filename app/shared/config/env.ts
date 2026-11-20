@@ -4,3 +4,6 @@ export const APP_VERSION = __APP_VERSION__;
 // Same-origin in every environment: the ingress (and the dev server proxy in development) routes /api to the
 // backend, so there is no CORS and the refresh cookie is first-party.
 export const API_BASE_PATH = "/api/v1";
+
+// the public website, which hosts the terms and the privacy policy
+export const LANDING_URL = "https://narrativ.rizkysiregar.my.id";

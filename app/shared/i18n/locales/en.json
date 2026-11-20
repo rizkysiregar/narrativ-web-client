@@ -33,5 +33,87 @@
   "errors": {
     "network": "Cannot reach NARRATIV. Check your connection and try again.",
     "unexpected": "Something went wrong. Please try again."
+  },
+  "common": {
+    "continue": "Continue",
+    "back": "Back",
+    "show": "Show",
+    "hide": "Hide",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "validation": {
+    "required": "This field is required",
+    "username": {
+      "required": "Username is required",
+      "size": "Use 3 to 16 characters",
+      "pattern": "Only letters, numbers, dots (.) and underscores (_)"
+    },
+    "password": {
+      "required": "Password is required",
+      "size": "Use 8 to 64 characters",
+      "tooLong": "The password is too long, use fewer characters",
+      "mismatch": "The passwords do not match"
+    },
+    "email": {
+      "invalid": "Enter a valid email address"
+    },
+    "name": {
+      "size": "Use 2 to 50 characters"
+    },
+    "otp": {
+      "digits": "Enter the 6-digit code"
+    }
+  },
+  "auth": {
+    "fields": {
+      "username": "Username",
+      "password": "Password",
+      "email": "Email address",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "confirmPassword": "Repeat password",
+      "newPassword": "New password",
+      "otp": "Verification code"
+    },
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to keep up with the stories of people you follow.",
+      "submit": "Sign in",
+      "forgot": "Forgot password?",
+      "noAccount": "New to NARRATIV?",
+      "toRegister": "Create an account",
+      "ended": "Your session has ended."
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "Share your stories and follow the people you care about.",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "toLogin": "Sign in",
+      "agreement": "By creating an account you agree to the <terms>Terms</terms> and the <privacy>Privacy Policy</privacy>.",
+      "success": "Your account is ready. Welcome to NARRATIV!"
+    },
+    "otp": {
+      "title": "Check your email",
+      "sentTo": "We sent a 6-digit code to {{email}}. It expires in {{minutes}} minutes.",
+      "submit": "Verify",
+      "resend": "Send a new code",
+      "resendIn": "Send a new code in {{seconds}} s",
+      "resent": "A new code is on its way.",
+      "changeEmail": "Use another email"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "subtitle": "Enter the email linked to your account and we will send you a code.",
+      "submit": "Send code",
+      "newTitle": "Choose a new password",
+      "newSubtitle": "Pick something you can remember.",
+      "save": "Save password",
+      "success": "Your password has been changed. Sign in with your new password.",
+      "toLogin": "Back to sign in"
+    },
+    "logout": "Sign out",
+    "signedInAs": "Signed in as {{username}}"
   }
 }

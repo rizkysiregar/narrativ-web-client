@@ -50,6 +50,20 @@ export function endSession(endReason: string | null = null): void {
   useSession.setState({ status: "anonymous", accessToken: null, user: null, endReason });
 }
 
+/**
+ * Finds out at start-up whether the refresh cookie still holds a session. Afterwards the status is never unknown
+ * again: anonymous when there was no session or the backend could not be reached.
+ */
+export async function restoreSession(): Promise<void> {
+  if (useSession.getState().status !== "unknown") {
+    return;
+  }
+  await refreshSession();
+  if (useSession.getState().status === "unknown") {
+    endSession();
+  }
+}
+
 let pending: Promise<boolean> | null = null;
 
 /**
