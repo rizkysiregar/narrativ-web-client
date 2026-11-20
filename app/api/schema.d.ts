@@ -837,6 +837,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/devices/web-push-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Firebase web app config and VAPID key of this environment, for the web client's push token */
+        get: operations["webPushConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/devices/deactivate": {
         parameters: {
             query?: never;
@@ -2258,6 +2275,14 @@ export interface components {
         UpdateParameterRequest: {
             description?: string;
             paramValue?: string;
+        };
+        WebPushConfigResponse: {
+            apiKey?: string;
+            appId?: string;
+            enabled?: boolean;
+            messagingSenderId?: string;
+            projectId?: string;
+            vapidKey?: string;
         };
         UserDetailDTO: {
             email?: string;
@@ -7580,6 +7605,66 @@ export interface operations {
                     "*/*": {
                         code: string;
                         data?: components["schemas"]["PublicUserDTO"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    webPushConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["WebPushConfigResponse"];
                         message: string;
                     };
                 };

@@ -3,7 +3,7 @@
 Rencana pengembangan NARRATIV versi web (client untuk role `USER`, setara aplikasi Android). Dokumen ini acuan utama:
 apa yang harus disiapkan di backend dan infra, urutan fase pengembangan web, serta progress tiap item.
 
-- **Status:** Fase 0–5 selesai, Fase 6 berjalan
+- **Status:** Fase 0–5 selesai, Fase 6 menunggu App Links (di-skip), Fase 7 berjalan
 - **Dibuat:** 2026-11-20
 - **Repo terkait:** `narrativ-backend`, `narrativ-android`, `homelabs-gitops`, `web-admin`, `web-landing`
 - **Lokasi dokumen:** `narrativ-web-client/docs/PLAN.md`
@@ -24,7 +24,7 @@ Status fase di tabel ringkasan ikut diperbarui. Item yang batal dicoret (`~~...~
 | 4    | Membuat konten dan interaksi                 | ✅ Selesai  |
 | 5    | Akun, notifikasi in-app, dan keamanan        | ✅ Selesai  |
 | 6    | Sharing link (tanpa konten publik)           | 🟡 Berjalan |
-| 7    | Web push dan PWA                             | ⚪ Belum    |
+| 7    | Web push dan PWA                             | 🟡 Berjalan |
 | 8    | Google Sign-In (OAuth)                       | ⚪ Belum    |
 | 9    | Hardening dan launch prod                    | ⚪ Belum    |
 
@@ -112,26 +112,29 @@ app/
 
 Kolom _Kapan_ menunjukkan paling lambat item harus selesai.
 
-| ID    | Item                                                                                                                                                                                                                                                                        | Repo / tempat        | Kapan          | Status    | Ref         |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------- | --------- | ----------- |
-| BE-01 | Envelope `BaseResponse` dan schema error tampil di OpenAPI                                                                                                                                                                                                                  | backend              | Fase 0         | [x]       | #70         |
-| BE-02 | Refresh token lewat cookie httpOnly untuk web                                                                                                                                                                                                                               | backend              | Fase 0         | [x]       | #70         |
-| BE-03 | Header `X-Client-Platform` / `X-App-Version` dicatat di access log                                                                                                                                                                                                          | backend              | Fase 0         | [x]       | #70         |
-| BE-04 | ~~Origin web masuk `APP_CORS_ALLOWED_ORIGINS`~~ Tidak diperlukan: API diakses di origin yang sama (D10). Gantinya: rule `/api` di ingress host web                                                                                                                          | gitops ingress       | Fase 1         | [ ]       |             |
-| BE-05 | ~~Aturan CORS bucket MinIO untuk origin web~~ Tidak diperlukan: MinIO sudah menjawab preflight dan upload dari `app-dev-narrativ` dengan header CORS yang benar (diuji)                                                                                                     | infra MinIO          | Fase 4         | [x]       | –           |
-| BE-06 | Origin web ditambahkan ke _Authorized JavaScript origins_ OAuth client dev dan prod                                                                                                                                                                                         | Google Cloud Console | Fase 8         | [ ]       |             |
-| BE-07 | ~~Endpoint publik read-only untuk post dan profil~~ Dibatalkan: post dan profil tidak boleh dibuka tanpa login (D15)                                                                                                                                                        | backend              | Fase 6         | ~~batal~~ | #73 ditutup |
-| BE-08 | ~~URL media stabil untuk `og:image`~~ Dibatalkan: preview link tidak menampilkan isi post (D15)                                                                                                                                                                             | backend              | Fase 6         | ~~batal~~ | #73 ditutup |
-| BE-09 | ~~IP client dari server SSR~~ Dibatalkan: tidak ada SSR (D15)                                                                                                                                                                                                               | backend              | Fase 6         | ~~batal~~ | –           |
-| BE-10 | Format URL share: `/p/{postId}`, `/u/{username}` (dipakai web; penerima yang belum login diarahkan ke login lalu kembali). Sisa: link share Android, `data` notifikasi, template email, App Links (intent filter Android + `assetlinks.json` dengan fingerprint sertifikat) | backend + android    | Fase 6         | 🟡        | web         |
-| BE-11 | `platform` device jadi enum `ANDROID`/`WEB`, payload `webpush`, subscribe topic `global` dari server, token `UNREGISTERED` dinonaktifkan                                                                                                                                    | backend              | Fase 7         | [ ]       |             |
-| BE-12 | Web app terdaftar di Firebase dengan App Check reCAPTCHA Enterprise, app id masuk `allowed-apps`                                                                                                                                                                            | Firebase + backend   | Fase 9         | [ ]       |             |
-| BE-13 | (Opsional) Grace window rotasi refresh token, dievaluasi setelah Fase 2                                                                                                                                                                                                     | backend              | Setelah Fase 2 | [ ]       |             |
-| BE-14 | (Opsional) Android mengirim `X-Client-Platform: android` dan `X-App-Version`                                                                                                                                                                                                | android              | Kapan saja     | [ ]       |             |
-| BE-15 | Response 4xx/5xx yang dibuat otomatis oleh springdoc dari exception handler (schema kosong) diganti dengan `ErrorResponse`                                                                                                                                                  | backend              | Fase 2         | [x]       | #71         |
-| BE-16 | `GET /users/by-username/{username}` untuk URL profil `/u/{username}`, serta `page`/`size` di dokumen OpenAPI `GET /users`                                                                                                                                                   | backend              | Fase 3         | [x]       | #72         |
-| BE-17 | Origin web masuk `APP_CORS_ALLOWED_ORIGINS` dev (sementara). Di belakang Cloudflare + ingress, backend melihat request sebagai `http://`, sehingga origin `https://` dianggap lintas origin dan POST ditolak 403                                                            | gitops configmap     | Fase 3         | [x]       | gitops#13   |
-| BE-18 | Akar masalah BE-17: ingress-nginx `use-forwarded-headers: "true"` agar `X-Forwarded-Proto: https` dari Cloudflare diteruskan. Setelah itu entri BE-17 tidak diperlukan lagi                                                                                                 | rke2 HelmChartConfig | Fase 9         | [ ]       |             |
+| ID    | Item                                                                                                                                                                                                                                                                                 | Repo / tempat             | Kapan          | Status    | Ref         |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------- | -------------- | --------- | ----------- |
+| BE-01 | Envelope `BaseResponse` dan schema error tampil di OpenAPI                                                                                                                                                                                                                           | backend                   | Fase 0         | [x]       | #70         |
+| BE-02 | Refresh token lewat cookie httpOnly untuk web                                                                                                                                                                                                                                        | backend                   | Fase 0         | [x]       | #70         |
+| BE-03 | Header `X-Client-Platform` / `X-App-Version` dicatat di access log                                                                                                                                                                                                                   | backend                   | Fase 0         | [x]       | #70         |
+| BE-04 | ~~Origin web masuk `APP_CORS_ALLOWED_ORIGINS`~~ Tidak diperlukan: API diakses di origin yang sama (D10). Gantinya: rule `/api` di ingress host web                                                                                                                                   | gitops ingress            | Fase 1         | [ ]       |             |
+| BE-05 | ~~Aturan CORS bucket MinIO untuk origin web~~ Tidak diperlukan: MinIO sudah menjawab preflight dan upload dari `app-dev-narrativ` dengan header CORS yang benar (diuji)                                                                                                              | infra MinIO               | Fase 4         | [x]       | –           |
+| BE-06 | Origin web ditambahkan ke _Authorized JavaScript origins_ OAuth client dev dan prod                                                                                                                                                                                                  | Google Cloud Console      | Fase 8         | [ ]       |             |
+| BE-07 | ~~Endpoint publik read-only untuk post dan profil~~ Dibatalkan: post dan profil tidak boleh dibuka tanpa login (D15)                                                                                                                                                                 | backend                   | Fase 6         | ~~batal~~ | #73 ditutup |
+| BE-08 | ~~URL media stabil untuk `og:image`~~ Dibatalkan: preview link tidak menampilkan isi post (D15)                                                                                                                                                                                      | backend                   | Fase 6         | ~~batal~~ | #73 ditutup |
+| BE-09 | ~~IP client dari server SSR~~ Dibatalkan: tidak ada SSR (D15)                                                                                                                                                                                                                        | backend                   | Fase 6         | ~~batal~~ | –           |
+| BE-10 | Format URL share: `/p/{postId}`, `/u/{username}` (dipakai web; penerima yang belum login diarahkan ke login lalu kembali). Sisa: link share Android, `data` notifikasi, template email, App Links (intent filter Android + `assetlinks.json` dengan fingerprint sertifikat)          | backend + android         | Fase 6         | 🟡        | web         |
+| BE-11 | `platform` device `ANDROID`/`IOS`/`WEB`, payload `webpush` dengan link (APP_WEB_ORIGIN), `GET /devices/web-push-config` (config Firebase web per environment), token `UNREGISTERED` dinonaktifkan (sudah ada). ~~Subscribe topic `global` dari server~~ tidak dilakukan, lihat BE-19 | backend                   | Fase 7         | 🟡 PR     | #74         |
+| BE-12 | Web app terdaftar di Firebase dengan App Check reCAPTCHA Enterprise, app id masuk `allowed-apps`                                                                                                                                                                                     | Firebase + backend        | Fase 9         | [ ]       |             |
+| BE-13 | (Opsional) Grace window rotasi refresh token, dievaluasi setelah Fase 2                                                                                                                                                                                                              | backend                   | Setelah Fase 2 | [ ]       |             |
+| BE-14 | (Opsional) Android mengirim `X-Client-Platform: android` dan `X-App-Version`                                                                                                                                                                                                         | android                   | Kapan saja     | [ ]       |             |
+| BE-15 | Response 4xx/5xx yang dibuat otomatis oleh springdoc dari exception handler (schema kosong) diganti dengan `ErrorResponse`                                                                                                                                                           | backend                   | Fase 2         | [x]       | #71         |
+| BE-16 | `GET /users/by-username/{username}` untuk URL profil `/u/{username}`, serta `page`/`size` di dokumen OpenAPI `GET /users`                                                                                                                                                            | backend                   | Fase 3         | [x]       | #72         |
+| BE-17 | Origin web masuk `APP_CORS_ALLOWED_ORIGINS` dev (sementara). Di belakang Cloudflare + ingress, backend melihat request sebagai `http://`, sehingga origin `https://` dianggap lintas origin dan POST ditolak 403                                                                     | gitops configmap          | Fase 3         | [x]       | gitops#13   |
+| BE-18 | Akar masalah BE-17: ingress-nginx `use-forwarded-headers: "true"` agar `X-Forwarded-Proto: https` dari Cloudflare diteruskan. Setelah itu entri BE-17 tidak diperlukan lagi                                                                                                          | rke2 HelmChartConfig      | Fase 9         | [ ]       |             |
+| BE-19 | Bug yang sudah ada: tidak ada device yang subscribe ke topic `global` (Android maupun backend), sehingga broadcast admin dan casual push tidak sampai ke siapa pun                                                                                                                   | backend + android         | Terpisah       | [ ]       |             |
+| BE-20 | Isi env web push dev: `APP_WEB_ORIGIN` dan `APP_WEB_PUSH_*` (Firebase web app + VAPID key dari Firebase console) di configmap `narrativ-dev`                                                                                                                                         | gitops + Firebase console | Fase 7         | [ ]       |             |
+| BE-21 | (Nanti) Pindah dari token FCM ke registrasi Firebase Installation ID (`getToken` deprecated di SDK web), bersamaan di backend, Android, dan web                                                                                                                                      | backend + android + web   | Setelah Fase 9 | [ ]       |             |
 
 ### Detail BE-01: Envelope di OpenAPI
 
@@ -297,13 +300,23 @@ berisi konten) dibatalkan; PR backend #73, web #7, dan gitops #14 ditutup tanpa 
 - [ ] App Links Android (BE-10): `/.well-known/assetlinks.json` dengan fingerprint sertifikat signing dan intent
       filter `autoVerify` di aplikasi Android
 
-### Fase 7: Web push dan PWA ⚪
+### Fase 7: Web push dan PWA 🟡
 
-- [ ] BE-11 selesai
-- [ ] Firebase Messaging di web, service worker, alur izin notifikasi yang tidak mengganggu
-- [ ] Registrasi device `WEB` saat login, deaktivasi saat logout
-- [ ] Klik notifikasi membuka post atau profil terkait
-- [ ] Web app manifest dan ikon, aplikasi bisa di-install
+- [ ] BE-11 merged (backend #74) dan BE-20 (env Firebase web di dev)
+- [x] Firebase Messaging dengan paket modular `@firebase/app` + `@firebase/messaging` (paket payung `firebase` membawa
+      Firestore dengan `@grpc/grpc-js` yang rentan). Service worker dibundle sendiri dari `@firebase/messaging/sw` ke
+      `/firebase-messaging-sw.js` (origin sendiri, CSP tetap ketat); config Firebase dari backend saat runtime
+- [x] Alur izin yang tidak mengganggu: tidak pernah diminta saat halaman dibuka; tawaran di halaman notifikasi
+      ("Nanti saja" menyembunyikannya) dan tombol di Pengaturan; penjelasan kalau diblokir atau tidak tersedia
+- [x] Registrasi device `WEB` saat diaktifkan, didaftarkan ulang saat aplikasi dibuka (token berganti), deaktivasi
+      saat dimatikan dan saat logout
+- [x] Push saat aplikasi terbuka tampil sebagai toast dan memperbarui inbox serta badge
+- [x] Klik notifikasi membuka post, komentarnya, atau profil (link dari backend, `webpush.fcm_options.link`)
+- [x] Web app manifest dan ikon (dari aset brand landing), aplikasi bisa di-install; tipe MIME manifest di nginx
+- [x] Diuji: unit test dengan Firebase di-mock; image nginx di Chrome: service worker aktif di bawah CSP, manifest dan
+      ikon termuat
+- [ ] Uji push sungguhan di dev setelah BE-20: aktifkan di browser, like dari akun lain, notifikasi muncul dan
+      kliknya membuka post
 
 ### Fase 8: Google Sign-In (OAuth) ⚪
 
@@ -398,3 +411,4 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-20 | Build merge #3 dan #4 gagal di lint (tipe route belum di-generate di CI); dev masih Fase 2. Diperbaiki di PR #5                                                                                                                             |
 | 2026-11-20 | Fase 5 selesai (PR #6). Ditemukan: beacon Cloudflare Web Analytics diblokir CSP (item Fase 9)                                                                                                                                               |
 | 2026-11-20 | Keputusan D15: post dan profil tidak boleh dibuka tanpa login. Fase 6 diubah menjadi sharing link tanpa konten publik; BE-07/08/09 batal, PR #73 (backend), #7 (web), #14 (gitops) ditutup                                                  |
+| 2026-11-20 | Fase 7: backend #74 (web push), web PR #9 (push + PWA). App Links (Fase 6) di-skip dulu. Ditemukan BE-19 (topic `global` tanpa subscriber)                                                                                                  |

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { api } from "~/api/client";
 import { request } from "~/api/errors";
 import { endSession, startSession } from "~/api/session";
+import { disablePush, pushKeys } from "~/features/push";
 
 import type { LoginValues, RegisterValues } from "./schemas";
 
@@ -77,6 +78,8 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
+      // while the session still exists: the backend only deactivates a token of the caller
+      await disablePush(queryClient.getQueryData(pushKeys.config));
       await request(api.POST("/auth/logout")).catch(() => undefined);
     },
     onSettled: async () => {

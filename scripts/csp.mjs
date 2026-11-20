@@ -17,6 +17,11 @@ export function inlineScriptHashes(html) {
 
 // Post media and profile pictures: presigned URLs of the MinIO host, the same one for dev and prod (bucket differs)
 export const MEDIA_ORIGIN = "https://infra-minio.rizkysiregar.my.id";
+// what Firebase Messaging calls to register a browser for web push (the push itself arrives through the browser)
+export const PUSH_ORIGINS = [
+  "https://firebaseinstallations.googleapis.com",
+  "https://fcmregistrations.googleapis.com",
+];
 
 export function contentSecurityPolicy(scriptHashes) {
   return [
@@ -28,7 +33,7 @@ export function contentSecurityPolicy(scriptHashes) {
     `media-src 'self' blob: ${MEDIA_ORIGIN}`,
     "font-src 'self'",
     // the API is same-origin (the ingress routes /api to the backend); post media upload straight to MinIO
-    `connect-src 'self' ${MEDIA_ORIGIN}`,
+    `connect-src 'self' ${MEDIA_ORIGIN} ${PUSH_ORIGINS.join(" ")}`,
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'self'",

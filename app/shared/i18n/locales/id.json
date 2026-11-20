@@ -341,5 +341,15 @@
   "share": {
     "copied": "Tautan disalin",
     "copyFailed": "Tautan tidak dapat disalin"
+  },
+  "push": {
+    "label": "Notifikasi di browser ini",
+    "turnOn": "Aktifkan",
+    "turnOff": "Matikan",
+    "enabled": "Notifikasi aktif di browser ini",
+    "unavailable": "Tidak tersedia di browser ini.",
+    "denied": "Diblokir di pengaturan browser untuk situs ini. Izinkan notifikasi di sana untuk mengaktifkannya.",
+    "prompt": "Dapatkan notifikasi di browser ini saat ada yang menyukai, mengomentari, atau mengikuti Anda, meski NARRATIV ditutup.",
+    "notNow": "Nanti saja"
   }
 }

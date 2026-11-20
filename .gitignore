@@ -4,3 +4,4 @@ node_modules/
 /.react-router/
 /coverage/
 .env*.local
+/public/firebase-messaging-sw.js

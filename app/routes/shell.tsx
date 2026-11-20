@@ -4,6 +4,7 @@ import { useSession } from "~/api/session";
 import { UserMenu } from "~/features/auth";
 import { useUnreadCount } from "~/features/notifications";
 import { CreatePostButton } from "~/features/posts";
+import { usePushSetup } from "~/features/push";
 import { AppShell } from "~/shared/layout/app-shell";
 
 export default function Shell() {
@@ -11,6 +12,7 @@ export default function Shell() {
   const location = useLocation();
   // hooks run before the redirect below, so the badge only asks once there is a session
   const unread = useUnreadCount(status === "authenticated");
+  usePushSetup(status === "authenticated");
 
   // no session at start-up, a sign-out, or a session that ended (a refused refresh, a ban)
   if (status !== "authenticated") {

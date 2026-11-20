@@ -5,7 +5,9 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["build", ".react-router", "coverage", "app/api/schema.d.ts"] },
+  {
+    ignores: ["build", ".react-router", "coverage", "app/api/schema.d.ts", "public/firebase-messaging-sw.js"],
+  },
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
