@@ -27,7 +27,7 @@ export function ProfileMediaGrid({ username }: { username: string }) {
           const src = video ? first.thumbnailUrl : first?.url;
           return (
             <li key={post.id} className="relative aspect-square bg-plum">
-              <Link to={`/p/${post.id ?? ""}`} aria-label={t("profile.openPost")}>
+              <Link to={`/p/${post.id ?? ""}`} aria-label={t("profile.openPost")} className="block size-full">
                 {src && <img src={src} alt="" loading="lazy" className="size-full object-cover" />}
                 <span className="absolute top-2 right-2 text-fg drop-shadow" aria-hidden="true">
                   {video ? (
