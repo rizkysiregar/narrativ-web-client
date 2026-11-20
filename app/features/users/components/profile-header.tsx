@@ -8,6 +8,7 @@ import { nonBlank } from "~/shared/lib/text";
 import { Avatar } from "~/shared/ui/avatar";
 
 import { Button, buttonVariants } from "~/shared/ui/button";
+import { ShareButton } from "~/shared/ui/share-button";
 
 import { useFollow, useFollowStatus, type PublicUser } from "../api";
 
@@ -43,6 +44,11 @@ export function ProfileHeader({ user }: { user: PublicUser }) {
         </nav>
       </div>
       <div className="flex items-center gap-2 sm:ml-auto">
+        <ShareButton
+          path={`/u/${username}`}
+          title={t("profile.shareTitle", { username })}
+          label={t("profile.share")}
+        />
         {self && (
           <Link to="/settings/profile" className={buttonVariants({ variant: "secondary" })}>
             {t("profile.edit")}

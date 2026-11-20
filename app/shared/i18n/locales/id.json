@@ -153,7 +153,9 @@
       "body": "Postingan hilang dari semua beranda beserta komentarnya. Tindakan ini tidak bisa dibatalkan.",
       "confirm": "Hapus",
       "done": "Postingan dihapus"
-    }
+    },
+    "share": "Bagikan postingan",
+    "shareTitle": "Postingan @{{username}} di NARRATIV"
   },
   "profile": {
     "posts": "Postingan",
@@ -176,7 +178,9 @@
     "followingButton": "Mengikuti",
     "followUser": "Ikuti @{{username}}",
     "unfollowUser": "Berhenti mengikuti @{{username}}",
-    "edit": "Edit profil"
+    "edit": "Edit profil",
+    "share": "Bagikan profil",
+    "shareTitle": "@{{username}} di NARRATIV"
   },
   "search": {
     "label": "Cari orang",
@@ -333,5 +337,9 @@
       "COMMENT_PINNED": "{{actor}} menyematkan komentar Anda",
       "COMMENT_PINNED_many": "{{actor}} menyematkan komentar Anda"
     }
+  },
+  "share": {
+    "copied": "Tautan disalin",
+    "copyFailed": "Tautan tidak dapat disalin"
   }
 }

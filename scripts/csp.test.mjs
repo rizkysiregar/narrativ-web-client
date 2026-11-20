@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
-import { contentSecurityPolicy, inlineScriptHashes, MEDIA_ORIGIN } from "./csp.mjs";
+import { contentSecurityPolicy, inlineScriptHashes, MEDIA_ORIGIN, securityHeaders } from "./csp.mjs";
 
 const sha = (text) => `'sha256-${createHash("sha256").update(text).digest("base64")}'`;
 
@@ -22,5 +22,9 @@ describe("csp", () => {
     expect(csp).toContain(`img-src 'self' data: blob: ${MEDIA_ORIGIN}`);
     expect(csp).toContain(`media-src 'self' blob: ${MEDIA_ORIGIN}`);
     expect(csp).toContain(`connect-src 'self' ${MEDIA_ORIGIN}`);
+  });
+
+  it("keeps every page out of search engines", () => {
+    expect(securityHeaders("csp")).toContain('add_header X-Robots-Tag "noindex, nofollow" always;');
   });
 });

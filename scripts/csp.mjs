@@ -45,6 +45,8 @@ add_header X-Frame-Options DENY always;
 add_header Referrer-Policy strict-origin-when-cross-origin always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
 add_header Cross-Origin-Opener-Policy same-origin always;
+# everything is behind sign-in: nothing to index (public/robots.txt says the same)
+add_header X-Robots-Tag "noindex, nofollow" always;
 `;
 }
 
