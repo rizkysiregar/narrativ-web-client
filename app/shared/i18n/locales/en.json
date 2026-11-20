@@ -115,5 +115,61 @@
     },
     "logout": "Sign out",
     "signedInAs": "Signed in as {{username}}"
+  },
+  "page": {
+    "back": "Back"
+  },
+  "list": {
+    "loading": "Loading",
+    "loadMore": "Show more",
+    "retry": "Try again"
+  },
+  "feed": {
+    "homeEmpty": "Your feed is waiting",
+    "homeEmptyBody": "Follow people to see their stories here, or look around in Explore.",
+    "exploreEmpty": "Nothing to explore yet"
+  },
+  "post": {
+    "title": "Post",
+    "suggested": "Suggested",
+    "open": "Open the post by @{{username}}",
+    "likes_one": "{{count}} like",
+    "likes_other": "{{count}} likes",
+    "comments_one": "{{count}} comment",
+    "comments_other": "{{count}} comments",
+    "takenDown": "This post was taken down by a moderator.",
+    "takedownReason": "Reason: {{reason}}",
+    "notFound": "Post not available",
+    "notFoundBody": "It may have been deleted, or you cannot see it.",
+    "media": {
+      "gallery": "Media, {{count}} items",
+      "item": "Media {{index}} of {{count}} by @{{author}}"
+    }
+  },
+  "profile": {
+    "posts": "Posts",
+    "media": "Media",
+    "tabs": "Profile sections",
+    "connections": "Connections",
+    "followers_one": "follower",
+    "followers_other": "followers",
+    "following": "following",
+    "followersOf": "Followers of @{{username}}",
+    "followingOf": "Followed by @{{username}}",
+    "noPosts": "No posts yet",
+    "noMedia": "No photos or videos yet",
+    "noFollowers": "No followers yet",
+    "noFollowing": "Not following anyone yet",
+    "openPost": "Open post",
+    "notFound": "Profile not available",
+    "notFoundBody": "This account does not exist, or you cannot see it."
+  },
+  "search": {
+    "label": "Search people",
+    "placeholder": "Search by username",
+    "hintTitle": "Find people",
+    "hint": "Type a username to find people to follow.",
+    "noResults": "No one matches “{{term}}”",
+    "results": "Search results"
   }
 }

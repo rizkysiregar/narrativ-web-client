@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
-import { contentSecurityPolicy, inlineScriptHashes } from "./csp.mjs";
+import { contentSecurityPolicy, inlineScriptHashes, MEDIA_ORIGIN } from "./csp.mjs";
 
 const sha = (text) => `'sha256-${createHash("sha256").update(text).digest("base64")}'`;
 
@@ -19,5 +19,7 @@ describe("csp", () => {
     expect(csp).toContain("script-src 'self' 'sha256-abc'");
     expect(csp).not.toMatch(/script-src[^;]*unsafe-inline/);
     expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain(`img-src 'self' data: blob: ${MEDIA_ORIGIN}`);
+    expect(csp).toContain(`media-src 'self' blob: ${MEDIA_ORIGIN}`);
   });
 });

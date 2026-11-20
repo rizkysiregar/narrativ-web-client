@@ -15,13 +15,17 @@ export function inlineScriptHashes(html) {
   return hashes;
 }
 
+// Post media and profile pictures: presigned URLs of the MinIO host, the same one for dev and prod (bucket differs)
+export const MEDIA_ORIGIN = "https://infra-minio.rizkysiregar.my.id";
+
 export function contentSecurityPolicy(scriptHashes) {
   return [
     "default-src 'self'",
     `script-src 'self' ${scriptHashes.join(" ")}`.trim(),
     // sonner injects its stylesheet at runtime; inline styles cannot run code, inline scripts stay blocked
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob: ${MEDIA_ORIGIN}`,
+    `media-src 'self' blob: ${MEDIA_ORIGIN}`,
     "font-src 'self'",
     // the API is same-origin (the ingress routes /api to the backend)
     "connect-src 'self'",
