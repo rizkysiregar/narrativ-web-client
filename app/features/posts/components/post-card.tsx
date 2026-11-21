@@ -30,15 +30,10 @@ export function PostCard({ post, standalone = false, onMediaExpired, onDeleted }
   const takenDown = post.moderationStatus === "TAKEN_DOWN";
   const media = post.media ?? [];
 
-  const body = (
-    <>
-      {post.caption && (
-        <p className="break-words whitespace-pre-line" data-caption-of={post.id}>
-          {post.caption}
-        </p>
-      )}
-      {media.length > 0 && <PostMedia media={media} author={username} onExpired={onMediaExpired} />}
-    </>
+  const caption = post.caption && (
+    <p className="break-words whitespace-pre-line" data-caption-of={post.id}>
+      {post.caption}
+    </p>
   );
 
   return (
@@ -83,13 +78,23 @@ export function PostCard({ post, standalone = false, onMediaExpired, onDeleted }
           </p>
         )}
 
-        {standalone ? (
-          <div className="flex flex-col gap-3">{body}</div>
-        ) : (
-          // named by its own content (caption, media), so what is seen is what is announced
-          <Link to={postPath} className="flex flex-col gap-3" data-post-link>
-            {body}
-          </Link>
+        {caption &&
+          (standalone ? (
+            caption
+          ) : (
+            // named by its own content, so what is seen is what is announced
+            <Link to={postPath} data-post-link>
+              {caption}
+            </Link>
+          ))}
+        {/* outside the caption link: the gallery has buttons of its own, and its photos link to the post */}
+        {media.length > 0 && (
+          <PostMedia
+            media={media}
+            author={username}
+            href={standalone ? undefined : postPath}
+            onExpired={onMediaExpired}
+          />
         )}
 
         <footer className="flex items-center gap-4 text-sm text-muted">

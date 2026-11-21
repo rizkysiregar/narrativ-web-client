@@ -147,7 +147,9 @@
     "notFoundBody": "Mungkin sudah dihapus, atau Anda tidak dapat melihatnya.",
     "media": {
       "gallery": "Media, {{count}} item",
-      "item": "Media {{index}} dari {{count}} oleh @{{author}}"
+      "item": "Media {{index}} dari {{count}} oleh @{{author}}",
+      "previous": "Foto sebelumnya",
+      "next": "Foto berikutnya"
     },
     "like": "Suka",
     "delete": {
