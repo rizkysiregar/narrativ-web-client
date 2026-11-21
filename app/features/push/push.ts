@@ -1,6 +1,3 @@
-import { getApps, initializeApp, type FirebaseApp } from "@firebase/app";
-import { deleteToken, getMessaging, getToken, onMessage, type Messaging } from "@firebase/messaging";
-
 import { api } from "~/api/client";
 import { request } from "~/api/errors";
 import type { Schemas } from "~/api/types";
@@ -14,7 +11,7 @@ export type WebPushConfig = Schemas["WebPushConfigResponse"];
 const TOKEN_KEY = "narrativ.pushToken";
 // a random id of this browser, so the backend sees one device however often its token rotates
 const DEVICE_KEY = "narrativ.deviceId";
-const APP_NAME = "narrativ-push";
+const loadFirebase = () => import("./firebase");
 
 export type PushState = "unsupported" | "denied" | "off" | "on";
 
@@ -42,13 +39,6 @@ function firebaseConfig(config: WebPushConfig) {
   };
 }
 
-function messaging(config: WebPushConfig): Messaging {
-  const app: FirebaseApp =
-    getApps().find((existing) => existing.name === APP_NAME) ??
-    initializeApp(firebaseConfig(config), APP_NAME);
-  return getMessaging(app);
-}
-
 function deviceId(): string {
   const known = readPreference(DEVICE_KEY);
   if (known) {
@@ -70,8 +60,9 @@ async function registerToken(config: WebPushConfig): Promise<void> {
   const registration = await navigator.serviceWorker.register(
     `/firebase-messaging-sw.js?config=${encodeURIComponent(JSON.stringify(firebaseConfig(config)))}`,
   );
+  const { getToken, messaging } = await loadFirebase();
   // eslint-disable-next-line @typescript-eslint/no-deprecated -- see the comment above
-  const token = await getToken(messaging(config), {
+  const token = await getToken(messaging(firebaseConfig(config)), {
     vapidKey: config.vapidKey ?? "",
     serviceWorkerRegistration: registration,
   });
@@ -121,8 +112,9 @@ export async function disablePush(config?: WebPushConfig): Promise<void> {
   }
   await request(api.POST("/devices/deactivate", { body: { pushToken: token } })).catch(() => undefined);
   if (config?.enabled) {
+    const { deleteToken, messaging } = await loadFirebase();
     // eslint-disable-next-line @typescript-eslint/no-deprecated -- see registerToken
-    await deleteToken(messaging(config)).catch(() => false);
+    await deleteToken(messaging(firebaseConfig(config))).catch(() => false);
   }
   try {
     localStorage.removeItem(TOKEN_KEY);
@@ -136,7 +128,18 @@ export function onForegroundPush(
   config: WebPushConfig,
   handle: (title: string, body: string) => void,
 ): () => void {
-  return onMessage(messaging(config), (payload) => {
-    handle(payload.notification?.title ?? "", payload.notification?.body ?? "");
+  let stopped = false;
+  let unsubscribe: (() => void) | undefined;
+  void loadFirebase().then(({ messaging, onMessage }) => {
+    if (stopped) {
+      return;
+    }
+    unsubscribe = onMessage(messaging(firebaseConfig(config)), (payload) => {
+      handle(payload.notification?.title ?? "", payload.notification?.body ?? "");
+    });
   });
+  return () => {
+    stopped = true;
+    unsubscribe?.();
+  };
 }

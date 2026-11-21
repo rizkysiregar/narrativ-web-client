@@ -39,11 +39,10 @@ describe("like", () => {
     );
     renderApp("/");
 
-    const button = await screen.findByRole("button", { name: "Like" });
+    const button = await screen.findByRole("button", { name: /^Like, \d+ likes?$/ });
     await user.click(button);
 
-    expect(screen.getByRole("button", { name: "Unlike" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByLabelText("4 likes")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Like, 4 likes" })).toHaveAttribute("aria-pressed", "true");
     await waitFor(() => {
       expect(liked).toBe(1);
     });
@@ -54,11 +53,10 @@ describe("like", () => {
     server.use(http.delete(api("/posts/p1/dislike"), () => fail(400, "Could not unlike", "BAD_REQUEST")));
     renderApp("/");
 
-    await user.click(await screen.findByRole("button", { name: "Unlike" }));
+    await user.click(await screen.findByRole("button", { name: /^Like, \d+ likes?$/, pressed: true }));
 
     expect(await screen.findByText("Could not unlike")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Unlike" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByLabelText("3 likes")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Like, 3 likes" })).toHaveAttribute("aria-pressed", "true");
   });
 });
 

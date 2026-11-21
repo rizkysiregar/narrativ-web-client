@@ -137,7 +137,6 @@
   "post": {
     "title": "Postingan",
     "suggested": "Disarankan",
-    "open": "Buka postingan @{{username}}",
     "likes_one": "{{count}} suka",
     "likes_other": "{{count}} suka",
     "comments_one": "{{count}} komentar",
@@ -151,7 +150,6 @@
       "item": "Media {{index}} dari {{count}} oleh @{{author}}"
     },
     "like": "Suka",
-    "unlike": "Batal suka",
     "delete": {
       "action": "Hapus postingan",
       "title": "Hapus postingan ini?",

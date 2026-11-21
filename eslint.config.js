@@ -6,7 +6,14 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["build", ".react-router", "coverage", "app/api/schema.d.ts", "public/firebase-messaging-sw.js"],
+    ignores: [
+      "build",
+      ".react-router",
+      "coverage",
+      "app/api/schema.d.ts",
+      "public/firebase-messaging-sw.js",
+      "e2e-results",
+    ],
   },
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,

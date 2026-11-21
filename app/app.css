@@ -1,5 +1,6 @@
 @import "tailwindcss";
-@import "@fontsource-variable/bricolage-grotesque/standard.css";
+/* weight and width axes only (the narrow headings use the width): 78 KB instead of 131 KB with the optical size axis */
+@import "@fontsource-variable/bricolage-grotesque/wdth.css";
 
 /*
  * Dark only, like the Android app and web-landing: these are the app's own colors. Components use the tokens

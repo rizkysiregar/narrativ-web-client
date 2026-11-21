@@ -86,7 +86,8 @@ export function PostCard({ post, standalone = false, onMediaExpired, onDeleted }
         {standalone ? (
           <div className="flex flex-col gap-3">{body}</div>
         ) : (
-          <Link to={postPath} className="flex flex-col gap-3" aria-label={t("post.open", { username })}>
+          // named by its own content (caption, media), so what is seen is what is announced
+          <Link to={postPath} className="flex flex-col gap-3" data-post-link>
             {body}
           </Link>
         )}
@@ -96,10 +97,10 @@ export function PostCard({ post, standalone = false, onMediaExpired, onDeleted }
           <Link
             to={standalone ? "#comments" : postPath}
             className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors hover:bg-lilac/10 hover:text-lilac"
-            aria-label={t("post.comments", { count: post.commentCount ?? 0 })}
           >
             <MessageCircle className="size-4.5" aria-hidden="true" />
-            {formatCount(post.commentCount ?? 0, i18n.language)}
+            <span aria-hidden="true">{formatCount(post.commentCount ?? 0, i18n.language)}</span>
+            <span className="sr-only">{t("post.comments", { count: post.commentCount ?? 0 })}</span>
           </Link>
           {post.id && (
             <ShareButton path={postPath} title={t("post.shareTitle", { username })} label={t("post.share")} />
