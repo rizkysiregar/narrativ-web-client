@@ -3,7 +3,7 @@
 Rencana pengembangan NARRATIV versi web (client untuk role `USER`, setara aplikasi Android). Dokumen ini acuan utama:
 apa yang harus disiapkan di backend dan infra, urutan fase pengembangan web, serta progress tiap item.
 
-- **Status:** Fase 0–5 dan 8 selesai, Fase 6 menunggu App Links (di-skip), Fase 7 live di dev (menunggu uji push manual), Fase 9 berjalan
+- **Status:** Fase 0–5 dan 8 selesai, Fase 9 live di prod (sisa: link landing, web push prod, App Check), Fase 6 menunggu App Links (di-skip), Fase 7 live di dev (menunggu uji push manual)
 - **Dibuat:** 2026-11-20
 - **Repo terkait:** `narrativ-backend`, `narrativ-android`, `homelabs-gitops`, `web-admin`, `web-landing`
 - **Lokasi dokumen:** `narrativ-web-client/docs/PLAN.md`
@@ -375,11 +375,13 @@ dev setelah deploy (D17–D19).
 - [x] BE-23: refresh, logout, dan google-config punya bucket rate limit sendiri (backend #77). Ditemukan saat audit:
       beberapa reload halaman login menghabiskan jatah login (429)
 - [ ] BE-12, lalu App Check `enforce` dievaluasi. Ditunda setelah launch: prod di mode `log`, web tidak terblokir
-- [ ] App gitops prod `narrativ-web-client` (gitops #16, draft): ingress dengan rule `/api` ke backend prod, host
-      `app-narrativ.rizkysiregar.my.id`, sync manual; backend prod dipromosikan, `APP_WEB_ORIGIN` dan CORS prod
-- [ ] BE-06 prod: origin `app-narrativ` di OAuth client production; hostname Cloudflare; Argo CD app
+- [x] Prod live (gitops #16, 2026-11-21): `narrativ-web-client` `e16f388c0f77` di `app-narrativ.rizkysiregar.my.id`
+      (ingress `/api` ke backend prod, sync manual), backend prod `2e2c118dc6c0`, `APP_WEB_ORIGIN` dan CORS prod.
+      Dicek: header keamanan, `/api` ke backend, Google config memakai client production, halaman privat dialihkan ke
+      login, tombol Google tampil, tanpa error console atau pelanggaran CSP
+- [x] BE-06 prod: origin `app-narrativ` di OAuth client production; hostname Cloudflare; Argo CD app
 - [ ] (Opsional) Web push prod: Firebase web app + VAPID key project production di `APP_WEB_PUSH_*`
-- [ ] Link dari `web-landing` ke web app (setelah prod live)
+- [ ] Link dari `web-landing` ke web app (web-landing #5): tombol di header, hero, dan CTA penutup
 
 ---
 
@@ -455,3 +457,4 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-21 | Fase 7 terverifikasi di dev (BE-11, BE-20 selesai). Fase 8: backend #76 (BE-22, `GET /auth/google-config`), web PR Google Sign-In. Keputusan D16                                                                                            |
 | 2026-11-21 | Fase 8 selesai (backend #76, web #11). Fase 9: audit a11y dan Lighthouse, Sentry, smoke test E2E, BE-23 (backend #77), prod di gitops #16 (draft). Keputusan D17–D19                                                                        |
 | 2026-11-21 | Backend #77, #78 dan web #12 live di dev, smoke test 6/6 lulus. Tahap smoke test dihapus dari Jenkins (D19), tetap bisa dijalankan manual                                                                                                   |
+| 2026-11-21 | Sentry aktif (web #13, terverifikasi di dev). Prod live di `app-narrativ` (gitops #16). Link dari landing di web-landing #5                                                                                                                 |
