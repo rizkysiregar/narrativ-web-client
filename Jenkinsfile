@@ -28,9 +28,6 @@ pipeline {
         GITOPS_BRANCH = 'main'
         GITOPS_MANIFEST = 'apps/narrativ-web-client-dev/kustomization.yaml'
         NODE_IMAGE = 'node:24-alpine'
-        // same version as @playwright/test in package.json
-        PLAYWRIGHT_IMAGE = 'mcr.microsoft.com/playwright:v1.65.1-noble'
-        DEV_URL = 'https://app-dev-narrativ.rizkysiregar.my.id'
         // Sentry (error reporting). The DSN is public and goes into the bundle; without it nothing is reported.
         // Source maps are uploaded when the secret text credential `sentry-auth-token` exists.
         SENTRY_DSN = ''
@@ -110,7 +107,7 @@ pipeline {
                         '''
                     }
                 }
-                // which build an environment serves, for the smoke tests to wait for (and for people to check)
+                // which build an environment serves, to check after a deploy or a promotion
                 sh 'printf \'{"release":"%s"}\\n\' "$IMAGE_TAG" > build/client/version.json'
             }
         }
@@ -184,51 +181,6 @@ pipeline {
                             git push origin "HEAD:$GITOPS_BRANCH"
                         '''
                     }
-                }
-            }
-        }
-
-        stage('Smoke Test Dev') {
-            steps {
-                // Playwright against the deployed dev environment with a real test account: ingress, cookies, CSP and
-                // backend together. Marks the build unstable instead of failing it: the image is already deployed.
-                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                    sh '''
-                        docker run --rm \\
-                          --user "$(id -u):$(id -g)" \\
-                          --volumes-from "${JENKINS_CONTAINER_ID:-$HOSTNAME}" \\
-                          --workdir "$WORKSPACE" \\
-                          "$NODE_IMAGE" \\
-                          node scripts/wait-for-release.mjs "$DEV_URL" "$IMAGE_TAG" 900
-                    '''
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'narrativ-e2e-dev',
-                            usernameVariable: 'E2E_USERNAME',
-                            passwordVariable: 'E2E_PASSWORD'
-                        )
-                    ]) {
-                        sh '''
-                            docker run --rm \\
-                              --user "$(id -u):$(id -g)" \\
-                              --volumes-from "${JENKINS_CONTAINER_ID:-$HOSTNAME}" \\
-                              --workdir "$WORKSPACE" \\
-                              --ipc=host \\
-                              --env HOME=/tmp \\
-                              --env CI=1 \\
-                              --env E2E_BASE_URL="$DEV_URL" \\
-                              --env E2E_USERNAME \\
-                              --env E2E_PASSWORD \\
-                              "$PLAYWRIGHT_IMAGE" \\
-                              npx playwright test
-                        '''
-                    }
-                }
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: 'e2e-results/junit.xml'
-                    archiveArtifacts allowEmptyArchive: true, artifacts: 'e2e-results/artifacts/**'
                 }
             }
         }

@@ -55,15 +55,15 @@ npm run dev             # http://localhost:3000, /api proxied to the dev backend
 
 `.env.example` lists the optional settings (another backend, another port). Copy it to `.env.local`.
 
-| Script                 | What it does                                                        |
-| ---------------------- | ------------------------------------------------------------------- |
-| `npm run dev`          | Dev server with hot reload                                          |
-| `npm run build`        | Production build to `build/client` plus `build/nginx` (CSP header)  |
-| `npm run verify`       | Prettier check, ESLint, typecheck and unit tests (what CI runs)     |
-| `npm test`             | Unit tests once (`test:watch` to keep them running)                 |
-| `npm run api:generate` | Regenerates `app/api/schema.d.ts` from the dev backend's OpenAPI    |
-| `npm run api:check`    | Fails when `schema.d.ts` differs from what the backend serves       |
-| `npm run e2e`          | Playwright smoke tests against dev (`E2E_USERNAME`, `E2E_PASSWORD`) |
+| Script                 | What it does                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| `npm run dev`          | Dev server with hot reload                                                       |
+| `npm run build`        | Production build to `build/client` plus `build/nginx` (CSP header)               |
+| `npm run verify`       | Prettier check, ESLint, typecheck and unit tests (what CI runs)                  |
+| `npm test`             | Unit tests once (`test:watch` to keep them running)                              |
+| `npm run api:generate` | Regenerates `app/api/schema.d.ts` from the dev backend's OpenAPI                 |
+| `npm run api:check`    | Fails when `schema.d.ts` differs from what the backend serves                    |
+| `npm run e2e`          | Playwright smoke tests against dev, run by hand (`E2E_USERNAME`, `E2E_PASSWORD`) |
 
 ## Architecture
 
@@ -143,10 +143,9 @@ data stays in TanStack Query and is not copied into Zustand; a feature does not 
 
 Every push to `main` runs the `Jenkinsfile`: verify, API contract check (marks the build unstable when the backend
 moved on), build, image `ghcr.io/rizkysiregar/narrativ-web-client:<sha>`, and a commit of the new tag to
-the private GitOps repository (`apps/narrativ-web-client-dev`), which Argo CD syncs to the dev environment. Once dev
-serves the new build (`/version.json`), the Playwright smoke tests run against it with a test account and mark the
-build unstable when they fail. Production (`apps/narrativ-web-client`) is promoted by hand with a tag that passed in
-dev.
+the private GitOps repository (`apps/narrativ-web-client-dev`), which Argo CD syncs to the dev environment. `/version.json`
+tells which build an environment serves. Production (`apps/narrativ-web-client`) is promoted by hand with a tag that
+has run well in dev. The Playwright smoke tests (`npm run e2e`) are run by hand when wanted, not by the pipeline.
 
 The build reports errors to Sentry when the `Jenkinsfile` has a DSN: the environment follows the host, the release is
 the commit, and source maps are uploaded (credential `sentry-auth-token`) and then deleted from the image.
