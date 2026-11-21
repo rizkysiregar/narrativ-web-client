@@ -1,25 +1,48 @@
 # NARRATIV Web Client
 
 The web version of NARRATIV for users (role `USER`): the same social storytelling app as the Android client, in the
-browser. The admin panel is a separate project (`narrativ-web-admin`), the public website is `narrativ-web-landing`.
+browser. The admin panel (`narrativ-web-admin`) and the public website (`narrativ-web-landing`) are separate, private
+projects.
 
-The development plan, its phases and their progress live in [docs/PLAN.md](docs/PLAN.md).
+> The source is public for review only. It is not open source: see [LICENSE](LICENSE).
+
+**Related repositories:** [narrativ-backend](https://github.com/rizkysiregar/narrativ-backend) (the REST API this
+client talks to), [narrativ-android](https://github.com/rizkysiregar/narrativ-android) (the native Android client) and
+[narrativ-media-worker](https://github.com/rizkysiregar/narrativ-media-worker) (video thumbnails).
+
+The development plan, its phases and their progress live in [docs/PLAN.md](docs/PLAN.md) (in Indonesian).
+
+## Features
+
+- **Account:** sign in with username and password, register with an email OTP, reset a forgotten password, edit the
+  profile and profile picture, change email (OTP plus current password), delete the account.
+- **Feed:** home feed (your posts and the people you follow, then suggestions) and Explore, with cursor paging.
+- **Posts:** create a post with a caption and photos or videos, checked against the backend's limits before
+  uploading. Files go straight from the browser to object storage with presigned forms. Open a post on its own page
+  and share its link.
+- **Conversation:** comments with threaded replies; the author can pin one comment, and a reader can select part of
+  the caption to quote it in a comment.
+- **People:** profiles with posts and media tabs, followers and following lists, user search.
+- **Notifications:** an inbox grouped by event with an unread badge, and web push through Firebase Cloud Messaging
+  (a service worker shows pushes while the tab is closed).
+- **Safety:** block and unblock users, manage blocked accounts, report posts, comments and users.
+- **Languages:** Indonesian and English, sent to the backend so its messages match.
 
 ## Tech stack
 
-| Area         | Technology                                                                   |
-| ------------ | ---------------------------------------------------------------------------- |
-| Runtime      | Node 24 LTS (`.tool-versions`)                                               |
-| Framework    | React 19, React Router 8 (framework mode, SPA for now), Vite 8               |
-| Language     | TypeScript 6, strict                                                         |
-| API          | `openapi-fetch` with types generated from the backend's OpenAPI document     |
-| Server state | TanStack Query 5                                                             |
-| Client state | Zustand (session only)                                                       |
-| Styling      | Tailwind CSS 4, the app's dark palette and Bricolage Grotesque               |
-| i18n         | i18next (Indonesian, English)                                                |
-| Tests        | Vitest, Testing Library, MSW                                                 |
-| Quality      | ESLint (typescript-eslint strict), Prettier, Husky + lint-staged             |
-| Delivery     | nginx image, Jenkins, Argo CD (`homelabs-gitops/apps/narrativ-web-client-*`) |
+| Area         | Technology                                                               |
+| ------------ | ------------------------------------------------------------------------ |
+| Runtime      | Node 24 LTS (`.tool-versions`)                                           |
+| Framework    | React 19, React Router 8 (framework mode, SPA for now), Vite 8           |
+| Language     | TypeScript 6, strict                                                     |
+| API          | `openapi-fetch` with types generated from the backend's OpenAPI document |
+| Server state | TanStack Query 5                                                         |
+| Client state | Zustand (session only)                                                   |
+| Styling      | Tailwind CSS 4, the app's dark palette and Bricolage Grotesque           |
+| i18n         | i18next (Indonesian, English)                                            |
+| Tests        | Vitest, Testing Library, MSW                                             |
+| Quality      | ESLint (typescript-eslint strict), Prettier, Husky + lint-staged         |
+| Delivery     | nginx image, Jenkins, Argo CD (from a private GitOps repository)         |
 
 ## Getting started
 
@@ -39,6 +62,44 @@ npm run dev             # http://localhost:3000, /api proxied to the dev backend
 | `npm test`             | Unit tests once (`test:watch` to keep them running)                |
 | `npm run api:generate` | Regenerates `app/api/schema.d.ts` from the dev backend's OpenAPI   |
 | `npm run api:check`    | Fails when `schema.d.ts` differs from what the backend serves      |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Browser
+        direction TB
+        Routes["Route modules<br/>(React Router)"]
+        Features["features/&lt;name&gt;<br/>components + api.ts hooks"]
+        Query["TanStack Query<br/>(server state)"]
+        Client["Typed API client<br/>openapi-fetch + refresh"]
+        Session["Zustand<br/>(session, in memory)"]
+        SW["Service worker<br/>(web push)"]
+        Routes --> Features --> Query --> Client
+        Client <--> Session
+    end
+
+    Nginx["nginx<br/>static app + CSP"]
+    Ingress["Ingress<br/>/ → nginx, /api → backend"]
+    Backend["narrativ-backend<br/>/api/v1"]
+    Storage[("Object storage<br/>MinIO")]
+    FCM["Firebase<br/>Cloud Messaging"]
+
+    Browser --> Ingress
+    Ingress --> Nginx
+    Ingress --> Backend
+    Client -. "presigned upload" .-> Storage
+    FCM -. "push" .-> SW
+    Backend --> FCM
+```
+
+- **One origin.** The page and the API share a host: the ingress sends `/api` to the backend and everything else to
+  the nginx image, so there is no CORS and the same image runs in every environment.
+- **Data flow.** Route modules stay thin; each feature owns its components and the TanStack Query hooks in its
+  `api.ts`, which call the typed client. Server data lives only in the query cache, and Zustand holds just the
+  session.
+- **Types from the backend.** The client's types are generated from the backend's OpenAPI document, and CI marks
+  the build unstable when the backend's contract has moved on.
 
 ## How it talks to the backend
 
@@ -80,8 +141,24 @@ data stays in TanStack Query and is not copied into Zustand; a feature does not 
 
 Every push to `main` runs the `Jenkinsfile`: verify, API contract check (marks the build unstable when the backend
 moved on), build, image `ghcr.io/rizkysiregar/narrativ-web-client:<sha>`, and a commit of the new tag to
-`homelabs-gitops/apps/narrativ-web-client-dev`, which Argo CD syncs to `https://app-dev-narrativ.rizkysiregar.my.id`.
+the private GitOps repository (`apps/narrativ-web-client-dev`), which Argo CD syncs to the dev environment.
 
 The image is nginx serving `build/client` with an SPA fallback, `/healthz` for the probes and security headers. The
 Content-Security-Policy allows React Router's inline start-up scripts by their SHA-256 hash, computed at build time
 by `scripts/csp.mjs`, so scripts need no `'unsafe-inline'`.
+
+## Security notes
+
+- **No secrets in the bundle.** Only `VITE_*` variables reach the browser, and none of them is a secret. The Firebase
+  web configuration is public by design and comes from the backend at runtime (`GET /devices/web-push-config`).
+- **Tokens out of reach of scripts.** The access token is kept in memory only, never in `localStorage`. The refresh
+  token is an HttpOnly, `SameSite=Strict` cookie that page scripts cannot read, and it is rotated on every refresh.
+- **Strict Content-Security-Policy.** Inline scripts are allowed only by their SHA-256 hash, computed at build time,
+  so there is no `'unsafe-inline'`. Framing is refused (`frame-ancestors 'none'`, `X-Frame-Options: DENY`), with
+  `nosniff`, a strict referrer policy and a Permissions-Policy that turns off camera, microphone and geolocation.
+- **Validated input.** Forms are validated on the client with schemas, and the backend validates everything again.
+
+## License
+
+Copyright (c) 2026 Habib Rizky Almajid Siregar. All rights reserved. The code is public for review only; see
+[LICENSE](LICENSE).

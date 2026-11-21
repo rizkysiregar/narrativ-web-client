@@ -200,7 +200,7 @@ Setiap fase selesai kalau semua item tercentang dan _Definition of Done_ (bagian
 
 ### Fase 1: Fondasi dan walking skeleton ✅
 
-- [x] Repo [`narrativ-web-client`](https://github.com/rizkysiregar/narrativ-web-client) (private) di GitHub, folder `web-app/web-client`
+- [x] Repo [`narrativ-web-client`](https://github.com/rizkysiregar/narrativ-web-client) di GitHub, folder `web-app/web-client`
 - [x] Scaffold React Router 8 (framework mode, `ssr: false`), TypeScript strict, Tailwind 4.
       Komponen shadcn/ui ditambahkan per kebutuhan mulai Fase 2 (form)
 - [x] ESLint, Prettier, Husky + lint-staged, Vitest + Testing Library + MSW
@@ -212,7 +212,7 @@ Setiap fase selesai kalau semua item tercentang dan _Definition of Done_ (bagian
 - [x] i18n EN/ID dengan key bertipe, tema dark-only (D11), layout dasar: sidebar desktop, top bar + tab bar mobile
 - [x] Error boundary, halaman 404, banner offline, placeholder untuk halaman fase berikutnya
 - [x] Dockerfile (nginx), CSP berbasis hash (D12), Jenkinsfile (pola `web-admin`, Node 24), `.env.example`, README
-- [x] `homelabs-gitops/apps/narrativ-web-client-dev` (deployment, service, ingress dengan rule `/api`, kustomization) (PR [homelabs-gitops#12](https://github.com/rizkysiregar/homelabs-gitops/pull/12))
+- [x] `homelabs-gitops/apps/narrativ-web-client-dev` (deployment, service, ingress dengan rule `/api`, kustomization)
 - [x] Cloudflare Tunnel hostname `app-dev-narrativ.rizkysiregar.my.id`
 - [x] Pipeline Jenkins `narrativ-web-client` dan Argo CD Application (dibuat manual, langkahnya di README gitops)
 - [x] Halaman ter-deploy di `app-dev-narrativ.rizkysiregar.my.id`, `/healthz` menjawab 200, `/api/v1` sampai ke backend
