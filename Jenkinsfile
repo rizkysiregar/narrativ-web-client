@@ -1,3 +1,16 @@
+// Runs the body with a secret text credential bound to `variable` when Jenkins has it, and without when it does not:
+// optional integrations (Sentry source maps) must not break the build before they are set up.
+def withOptionalSecret(String credentialsId, String variable, Closure body) {
+    try {
+        withCredentials([string(credentialsId: credentialsId, variable: variable)]) {
+            body()
+        }
+    } catch (org.jenkinsci.plugins.credentialsbinding.impl.CredentialNotFoundException ignored) {
+        echo "Credential ${credentialsId} not found; continuing without it."
+        body()
+    }
+}
+
 pipeline {
     agent any
 
@@ -15,6 +28,14 @@ pipeline {
         GITOPS_BRANCH = 'main'
         GITOPS_MANIFEST = 'apps/narrativ-web-client-dev/kustomization.yaml'
         NODE_IMAGE = 'node:24-alpine'
+        // same version as @playwright/test in package.json
+        PLAYWRIGHT_IMAGE = 'mcr.microsoft.com/playwright:v1.65.1-noble'
+        DEV_URL = 'https://app-dev-narrativ.rizkysiregar.my.id'
+        // Sentry (error reporting). The DSN is public and goes into the bundle; without it nothing is reported.
+        // Source maps are uploaded when the secret text credential `sentry-auth-token` exists.
+        SENTRY_DSN = ''
+        SENTRY_ORG = ''
+        SENTRY_PROJECT = ''
         YQ_IMAGE = 'mikefarah/yq:4.45.4'
     }
 
@@ -70,15 +91,27 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh '''
-                    docker run --rm \\
-                      --user "$(id -u):$(id -g)" \\
-                      --volumes-from "${JENKINS_CONTAINER_ID:-$HOSTNAME}" \\
-                      --workdir "$WORKSPACE" \\
-                      --env npm_config_cache=/tmp/.npm \\
-                      "$NODE_IMAGE" \\
-                      npm run build
-                '''
+                script {
+                    withOptionalSecret('sentry-auth-token', 'SENTRY_AUTH_TOKEN') {
+                        // VITE_RELEASE ties Sentry events and source maps to this commit
+                        sh '''
+                            docker run --rm \\
+                              --user "$(id -u):$(id -g)" \\
+                              --volumes-from "${JENKINS_CONTAINER_ID:-$HOSTNAME}" \\
+                              --workdir "$WORKSPACE" \\
+                              --env npm_config_cache=/tmp/.npm \\
+                              --env VITE_SENTRY_DSN="$SENTRY_DSN" \\
+                              --env VITE_RELEASE="$IMAGE_TAG" \\
+                              --env SENTRY_ORG \\
+                              --env SENTRY_PROJECT \\
+                              --env SENTRY_AUTH_TOKEN \\
+                              "$NODE_IMAGE" \\
+                              npm run build
+                        '''
+                    }
+                }
+                // which build an environment serves, for the smoke tests to wait for (and for people to check)
+                sh 'printf \'{"release":"%s"}\\n\' "$IMAGE_TAG" > build/client/version.json'
             }
         }
 
@@ -151,6 +184,51 @@ pipeline {
                             git push origin "HEAD:$GITOPS_BRANCH"
                         '''
                     }
+                }
+            }
+        }
+
+        stage('Smoke Test Dev') {
+            steps {
+                // Playwright against the deployed dev environment with a real test account: ingress, cookies, CSP and
+                // backend together. Marks the build unstable instead of failing it: the image is already deployed.
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    sh '''
+                        docker run --rm \\
+                          --user "$(id -u):$(id -g)" \\
+                          --volumes-from "${JENKINS_CONTAINER_ID:-$HOSTNAME}" \\
+                          --workdir "$WORKSPACE" \\
+                          "$NODE_IMAGE" \\
+                          node scripts/wait-for-release.mjs "$DEV_URL" "$IMAGE_TAG" 900
+                    '''
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'narrativ-e2e-dev',
+                            usernameVariable: 'E2E_USERNAME',
+                            passwordVariable: 'E2E_PASSWORD'
+                        )
+                    ]) {
+                        sh '''
+                            docker run --rm \\
+                              --user "$(id -u):$(id -g)" \\
+                              --volumes-from "${JENKINS_CONTAINER_ID:-$HOSTNAME}" \\
+                              --workdir "$WORKSPACE" \\
+                              --ipc=host \\
+                              --env HOME=/tmp \\
+                              --env CI=1 \\
+                              --env E2E_BASE_URL="$DEV_URL" \\
+                              --env E2E_USERNAME \\
+                              --env E2E_PASSWORD \\
+                              "$PLAYWRIGHT_IMAGE" \\
+                              npx playwright test
+                        '''
+                    }
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'e2e-results/junit.xml'
+                    archiveArtifacts allowEmptyArchive: true, artifacts: 'e2e-results/artifacts/**'
                 }
             }
         }

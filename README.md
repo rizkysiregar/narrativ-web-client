@@ -14,8 +14,8 @@ The development plan, its phases and their progress live in [docs/PLAN.md](docs/
 
 ## Features
 
-- **Account:** sign in with username and password, register with an email OTP, reset a forgotten password, edit the
-  profile and profile picture, change email (OTP plus current password), delete the account.
+- **Account:** sign in with username and password or with Google, register with an email OTP, reset a forgotten password, edit the
+  profile and profile picture, change email (OTP plus current password or Google), delete the account.
 - **Feed:** home feed (your posts and the people you follow, then suggestions) and Explore, with cursor paging.
 - **Posts:** create a post with a caption and photos or videos, checked against the backend's limits before
   uploading. Files go straight from the browser to object storage with presigned forms. Open a post on its own page
@@ -40,7 +40,8 @@ The development plan, its phases and their progress live in [docs/PLAN.md](docs/
 | Client state | Zustand (session only)                                                   |
 | Styling      | Tailwind CSS 4, the app's dark palette and Bricolage Grotesque           |
 | i18n         | i18next (Indonesian, English)                                            |
-| Tests        | Vitest, Testing Library, MSW                                             |
+| Tests        | Vitest, Testing Library, MSW; Playwright smoke tests against dev         |
+| Monitoring   | Sentry (errors only, loaded after start-up, no personal data)            |
 | Quality      | ESLint (typescript-eslint strict), Prettier, Husky + lint-staged         |
 | Delivery     | nginx image, Jenkins, Argo CD (from a private GitOps repository)         |
 
@@ -54,14 +55,15 @@ npm run dev             # http://localhost:3000, /api proxied to the dev backend
 
 `.env.example` lists the optional settings (another backend, another port). Copy it to `.env.local`.
 
-| Script                 | What it does                                                       |
-| ---------------------- | ------------------------------------------------------------------ |
-| `npm run dev`          | Dev server with hot reload                                         |
-| `npm run build`        | Production build to `build/client` plus `build/nginx` (CSP header) |
-| `npm run verify`       | Prettier check, ESLint, typecheck and unit tests (what CI runs)    |
-| `npm test`             | Unit tests once (`test:watch` to keep them running)                |
-| `npm run api:generate` | Regenerates `app/api/schema.d.ts` from the dev backend's OpenAPI   |
-| `npm run api:check`    | Fails when `schema.d.ts` differs from what the backend serves      |
+| Script                 | What it does                                                        |
+| ---------------------- | ------------------------------------------------------------------- |
+| `npm run dev`          | Dev server with hot reload                                          |
+| `npm run build`        | Production build to `build/client` plus `build/nginx` (CSP header)  |
+| `npm run verify`       | Prettier check, ESLint, typecheck and unit tests (what CI runs)     |
+| `npm test`             | Unit tests once (`test:watch` to keep them running)                 |
+| `npm run api:generate` | Regenerates `app/api/schema.d.ts` from the dev backend's OpenAPI    |
+| `npm run api:check`    | Fails when `schema.d.ts` differs from what the backend serves       |
+| `npm run e2e`          | Playwright smoke tests against dev (`E2E_USERNAME`, `E2E_PASSWORD`) |
 
 ## Architecture
 
@@ -141,7 +143,13 @@ data stays in TanStack Query and is not copied into Zustand; a feature does not 
 
 Every push to `main` runs the `Jenkinsfile`: verify, API contract check (marks the build unstable when the backend
 moved on), build, image `ghcr.io/rizkysiregar/narrativ-web-client:<sha>`, and a commit of the new tag to
-the private GitOps repository (`apps/narrativ-web-client-dev`), which Argo CD syncs to the dev environment.
+the private GitOps repository (`apps/narrativ-web-client-dev`), which Argo CD syncs to the dev environment. Once dev
+serves the new build (`/version.json`), the Playwright smoke tests run against it with a test account and mark the
+build unstable when they fail. Production (`apps/narrativ-web-client`) is promoted by hand with a tag that passed in
+dev.
+
+The build reports errors to Sentry when the `Jenkinsfile` has a DSN: the environment follows the host, the release is
+the commit, and source maps are uploaded (credential `sentry-auth-token`) and then deleted from the image.
 
 The image is nginx serving `build/client` with an SPA fallback, `/healthz` for the probes and security headers. The
 Content-Security-Policy allows React Router's inline start-up scripts by their SHA-256 hash, computed at build time

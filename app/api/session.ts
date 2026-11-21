@@ -30,6 +30,31 @@ export const useSession = create<SessionState>()(() => ({
   endReason: null,
 }));
 
+// Whether this browser was signed in when it was last used. Not a secret and no proof of anything: it only spares a
+// visitor who never signed in (or signed out) the refresh call at start-up, which would answer 401 anyway.
+const SIGNED_IN_HINT = "narrativ:signed-in";
+
+function rememberSignedIn(signedIn: boolean): void {
+  try {
+    if (signedIn) {
+      localStorage.setItem(SIGNED_IN_HINT, "1");
+    } else {
+      localStorage.removeItem(SIGNED_IN_HINT);
+    }
+  } catch {
+    // storage blocked: start-up then always asks the backend
+  }
+}
+
+/** false only when this browser is known to be signed out; null when storage cannot tell. */
+function wasSignedIn(): boolean | null {
+  try {
+    return localStorage.getItem(SIGNED_IN_HINT) === "1";
+  } catch {
+    return null;
+  }
+}
+
 export function getAccessToken(): string | null {
   return useSession.getState().accessToken;
 }
@@ -44,6 +69,7 @@ export function startSession({ token, userId, username, role }: LoginResponse): 
     user: { userId, username, role },
     endReason: null,
   });
+  rememberSignedIn(true);
 }
 
 /** After the user changed their username: the session keeps showing the right one without signing in again. */
@@ -51,8 +77,18 @@ export function updateSessionUser(changes: Partial<SessionUser>): void {
   useSession.setState((state) => (state.user ? { user: { ...state.user, ...changes } } : {}));
 }
 
-export function endSession(endReason: string | null = null): void {
+/**
+ * @param forget whether this browser no longer counts as signed in. False when the session is only unknown for now
+ *   (backend unreachable, rate limited, failing): the refresh cookie may still be good, so the next start asks again.
+ */
+export function endSession(
+  endReason: string | null = null,
+  { forget = true }: { forget?: boolean } = {},
+): void {
   useSession.setState({ status: "anonymous", accessToken: null, user: null, endReason });
+  if (forget) {
+    rememberSignedIn(false);
+  }
 }
 
 /**
@@ -63,9 +99,14 @@ export async function restoreSession(): Promise<void> {
   if (useSession.getState().status !== "unknown") {
     return;
   }
+  if (wasSignedIn() === false) {
+    endSession();
+    return;
+  }
   await refreshSession();
   if (useSession.getState().status === "unknown") {
-    endSession();
+    // offline at start-up: nothing says the session is gone
+    endSession(null, { forget: false });
   }
 }
 
@@ -112,8 +153,9 @@ async function callRefresh(): Promise<boolean> {
 
   const error = ApiError.fromBody(response.status, body);
   // a refused refresh ends the session; a server failure only does so before any session was known
-  if (response.status === 401 || response.status === 403 || useSession.getState().status === "unknown") {
-    endSession(error.isBan ? error.message : null);
+  const refused = response.status === 401 || response.status === 403;
+  if (refused || useSession.getState().status === "unknown") {
+    endSession(error.isBan ? error.message : null, { forget: refused });
   }
   return false;
 }

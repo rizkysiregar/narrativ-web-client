@@ -27,17 +27,39 @@ export const PUSH_ORIGINS = [
 // and iframe, and the calls the button makes
 export const GOOGLE_SIGN_IN = "https://accounts.google.com/gsi/";
 
-export function contentSecurityPolicy(scriptHashes) {
+// Cloudflare Web Analytics: Cloudflare injects its beacon into the page at the edge, and the beacon reports there
+export const CLOUDFLARE_ANALYTICS = {
+  script: "https://static.cloudflareinsights.com",
+  connect: "https://cloudflareinsights.com",
+};
+
+/** Where Sentry events go: the origin of the project's DSN, when the build has one. */
+export function sentryOrigin(dsn) {
+  if (!dsn) {
+    return null;
+  }
+  return new URL(dsn).origin;
+}
+
+export function contentSecurityPolicy(scriptHashes, { sentryDsn } = {}) {
+  const sentry = sentryOrigin(sentryDsn);
   return [
     "default-src 'self'",
-    `script-src 'self' ${GOOGLE_SIGN_IN}client ${scriptHashes.join(" ")}`.trim(),
+    `script-src 'self' ${GOOGLE_SIGN_IN}client ${CLOUDFLARE_ANALYTICS.script} ${scriptHashes.join(" ")}`.trim(),
     // sonner injects its stylesheet at runtime; inline styles cannot run code, inline scripts stay blocked
     `style-src 'self' 'unsafe-inline' ${GOOGLE_SIGN_IN}style`,
     `img-src 'self' data: blob: ${MEDIA_ORIGIN}`,
     `media-src 'self' blob: ${MEDIA_ORIGIN}`,
     "font-src 'self'",
     // the API is same-origin (the ingress routes /api to the backend); post media upload straight to MinIO
-    `connect-src 'self' ${MEDIA_ORIGIN} ${PUSH_ORIGINS.join(" ")} ${GOOGLE_SIGN_IN}`,
+    [
+      "connect-src 'self'",
+      MEDIA_ORIGIN,
+      ...PUSH_ORIGINS,
+      GOOGLE_SIGN_IN,
+      CLOUDFLARE_ANALYTICS.connect,
+      ...(sentry ? [sentry] : []),
+    ].join(" "),
     `frame-src ${GOOGLE_SIGN_IN}`,
     "object-src 'none'",
     "base-uri 'none'",
@@ -65,6 +87,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const html = await readFile("build/client/index.html", "utf8");
   const hashes = inlineScriptHashes(html);
   await mkdir("build/nginx", { recursive: true });
-  await writeFile("build/nginx/security-headers.conf", securityHeaders(contentSecurityPolicy(hashes)));
+  const csp = contentSecurityPolicy(hashes, { sentryDsn: process.env.VITE_SENTRY_DSN });
+  await writeFile("build/nginx/security-headers.conf", securityHeaders(csp));
   console.log(`build/nginx/security-headers.conf written (${hashes.length} inline script hashes).`);
 }

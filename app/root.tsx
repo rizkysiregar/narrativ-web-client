@@ -2,14 +2,17 @@ import "./app.css";
 import "~/shared/i18n";
 
 import { QueryClientProvider } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { Toaster } from "sonner";
+
+import headingFont from "@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wdth-normal.woff2?url";
 
 import { restoreSession } from "~/api/session";
 import { APP_NAME, LANDING_URL } from "~/shared/config/env";
 import { createQueryClient } from "~/shared/lib/query-client";
+import { reportError } from "~/shared/monitoring/sentry";
 import { Button } from "~/shared/ui/button";
 import { LogoMark } from "~/shared/ui/logo";
 import { PageMessage } from "~/shared/ui/page-message";
@@ -37,6 +40,8 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 export const links: Route.LinksFunction = () => [
+  // the first text on screen is set in it: fetch it with the stylesheet, not after it
+  { rel: "preload", href: headingFont, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
   { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
   { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
   // installable as an app (PWA)
@@ -101,9 +106,16 @@ export function HydrateFallback() {
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const { t } = useTranslation();
 
-  if (import.meta.env.DEV) {
-    console.error(error);
-  }
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.error(error);
+    }
+    // a route that answered 404 is not a bug; anything else that ends up here is
+    if (!isRouteErrorResponse(error)) {
+      reportError(error);
+    }
+  }, [error]);
+
   return (
     <PageMessage title={t("error.title")} body={t("error.body")}>
       <Button

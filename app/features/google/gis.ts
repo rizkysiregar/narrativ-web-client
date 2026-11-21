@@ -63,7 +63,15 @@ export function loadGoogleIdentity(): Promise<GoogleIdentity> {
       script.remove();
       reject(new Error("Google Identity Services could not be loaded"));
     };
-    document.head.append(script);
+    // after the page has painted: the button is a secondary way in and must not hold up the form
+    const append = () => {
+      document.head.append(script);
+    };
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(append, { timeout: 2000 });
+    } else {
+      setTimeout(append, 0);
+    }
   }).catch((error: unknown) => {
     loading = null;
     throw error;

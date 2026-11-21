@@ -137,7 +137,6 @@
   "post": {
     "title": "Post",
     "suggested": "Suggested",
-    "open": "Open the post by @{{username}}",
     "likes_one": "{{count}} like",
     "likes_other": "{{count}} likes",
     "comments_one": "{{count}} comment",
@@ -151,7 +150,6 @@
       "item": "Media {{index}} of {{count}} by @{{author}}"
     },
     "like": "Like",
-    "unlike": "Unlike",
     "delete": {
       "action": "Delete post",
       "title": "Delete this post?",

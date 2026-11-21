@@ -20,6 +20,7 @@ export function UserSearch() {
 
   return (
     <div>
+      <h1 className="sr-only">{t("search.label")}</h1>
       <div className="sticky top-0 z-[5] border-b border-line bg-ink/90 px-4 py-3 backdrop-blur">
         <label className="relative block">
           <span className="sr-only">{t("search.label")}</span>

@@ -94,7 +94,8 @@ describe("post card", () => {
 
     const card = (await screen.findByRole("link", { name: "@budi" })).closest("article") as HTMLElement;
     expect(within(card).getByText("5 min. ago")).toBeInTheDocument();
-    expect(within(card).getByLabelText("1234 likes")).toHaveTextContent("1.2K");
+    const like = within(card).getByRole("button", { name: "Like, 1234 likes" });
+    expect(like).toHaveTextContent("1.2K");
     expect(within(card).getByRole("img", { name: "Media 1 of 2 by @budi" })).toHaveAttribute(
       "src",
       "https://media.test/1.jpg",
@@ -103,10 +104,7 @@ describe("post card", () => {
       "poster",
       "https://media.test/2.jpg",
     );
-    expect(within(card).getByRole("link", { name: "Open the post by @budi" })).toHaveAttribute(
-      "href",
-      expect.stringMatching(/^\/p\//),
-    );
+    expect(card.querySelector("[data-post-link]")).toHaveAttribute("href", expect.stringMatching(/^\/p\//));
   });
 
   it("marks a taken down post", async () => {

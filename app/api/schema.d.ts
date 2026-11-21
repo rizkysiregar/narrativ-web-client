@@ -592,26 +592,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/google-config": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Google OAuth client id of this environment, for the web client's Sign in with Google button
-         * @description Public value, no login needed. enabled=false while the environment has no client id
-         */
-        get: operations["googleConfig"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/auth/google": {
         parameters: {
             query?: never;
@@ -626,6 +606,26 @@ export interface paths {
          * @description A web client (X-Client-Platform: web) gets the refresh token as an HttpOnly cookie instead of the refreshToken field
          */
         post: operations["googleLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/google-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Google OAuth client id of this environment, for the web client's Sign in with Google button
+         * @description Public value, no login needed. enabled=false while the environment has no client id
+         */
+        get: operations["googleConfig"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1902,12 +1902,12 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        GoogleLoginRequest: {
+            idToken: string;
+        };
         GoogleSignInConfigResponse: {
             clientId?: string;
             enabled?: boolean;
-        };
-        GoogleLoginRequest: {
-            idToken: string;
         };
         LoginResponse: {
             refreshToken?: string;
@@ -4805,6 +4805,66 @@ export interface operations {
             };
         };
     };
+    googleConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["GoogleSignInConfigResponse"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     login: {
         parameters: {
             query?: never;
@@ -5601,66 +5661,6 @@ export interface operations {
                         code: string;
                         /** @enum {string} */
                         data?: "CREATED" | "DRAFTED" | "SUBMITTED" | "UPDATED" | "ACTIVATED" | "APPROVED" | "DELETED" | "EXECUTED" | "FAILED" | "LIKED" | "DISLIKED" | "SENT" | "MATCHED";
-                        message: string;
-                    };
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    googleConfig: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": {
-                        code: string;
-                        data?: components["schemas"]["GoogleSignInConfigResponse"];
                         message: string;
                     };
                 };

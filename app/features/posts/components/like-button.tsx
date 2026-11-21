@@ -15,8 +15,8 @@ export function LikeButton({ post }: { post: Post }) {
   return (
     <button
       type="button"
+      // one name, the state in aria-pressed: a toggle that renames itself announces the wrong thing
       aria-pressed={liked}
-      aria-label={liked ? t("post.unlike") : t("post.like")}
       className={cn(
         "-ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors hover:bg-blush/10 hover:text-blush",
         liked && "text-blush",
@@ -28,7 +28,9 @@ export function LikeButton({ post }: { post: Post }) {
       }}
     >
       <Heart className={cn("size-4.5", liked && "fill-blush")} aria-hidden="true" />
-      <span aria-label={t("post.likes", { count })}>{formatCount(count, i18n.language)}</span>
+      {/* the short form (1.2K) for the eye, the exact count for screen readers */}
+      <span aria-hidden="true">{formatCount(count, i18n.language)}</span>
+      <span className="sr-only">{`${t("post.like")}, ${t("post.likes", { count })}`}</span>
     </button>
   );
 }

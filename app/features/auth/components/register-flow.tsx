@@ -156,7 +156,7 @@ export function RegisterFlow() {
                   href={legal("terms")}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-lilac hover:underline"
+                  className="text-lilac underline underline-offset-2"
                 />
               ),
               privacy: (
@@ -164,7 +164,7 @@ export function RegisterFlow() {
                   href={legal("privacy")}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-lilac hover:underline"
+                  className="text-lilac underline underline-offset-2"
                 />
               ),
             }}
