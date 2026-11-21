@@ -4,13 +4,14 @@ import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router";
 
 import { useSession } from "~/api/session";
+import { GoogleButton } from "~/features/google";
 import { Alert } from "~/shared/ui/alert";
 import { Button } from "~/shared/ui/button";
 import { FormField } from "~/shared/ui/form-field";
 import { Input } from "~/shared/ui/input";
 import { PasswordInput } from "~/shared/ui/password-input";
 
-import { useLogin } from "../api";
+import { useGoogleLogin, useLogin } from "../api";
 import { loginSchema, type LoginValues } from "../schemas";
 import { AuthCard } from "./auth-card";
 import { FormError } from "~/shared/ui/form-error";
@@ -20,6 +21,7 @@ export function LoginForm() {
   const [searchParams] = useSearchParams();
   const endReason = useSession((state) => state.endReason);
   const login = useLogin();
+  const google = useGoogleLogin();
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { username: "", password: "" },
@@ -51,7 +53,7 @@ export function LoginForm() {
         }
       >
         {/* the session that ended (a ban) explains itself until the next sign-in */}
-        {endReason && !login.error && <Alert>{endReason}</Alert>}
+        {endReason && !login.error && !google.error && <Alert>{endReason}</Alert>}
         <FormError error={login.error} />
         <FormField label={t("auth.fields.username")} error={errors.username}>
           <Input {...form.register("username")} autoComplete="username" autoCapitalize="none" autoFocus />
@@ -62,10 +64,20 @@ export function LoginForm() {
         <Link to="/forgot-password" className="self-end text-sm text-lilac hover:underline">
           {t("auth.login.forgot")}
         </Link>
-        <Button type="submit" size="lg" disabled={login.isPending}>
+        <Button type="submit" size="lg" disabled={login.isPending || google.isPending}>
           {t("auth.login.submit")}
         </Button>
       </form>
+      <GoogleButton
+        text="signin_with"
+        divider={t("google.or")}
+        pending={google.isPending}
+        error={google.error}
+        onCredential={(idToken) => {
+          login.reset();
+          google.mutate(idToken);
+        }}
+      />
     </AuthCard>
   );
 }

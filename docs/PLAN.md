@@ -3,7 +3,7 @@
 Rencana pengembangan NARRATIV versi web (client untuk role `USER`, setara aplikasi Android). Dokumen ini acuan utama:
 apa yang harus disiapkan di backend dan infra, urutan fase pengembangan web, serta progress tiap item.
 
-- **Status:** Fase 0–5 selesai, Fase 6 menunggu App Links (di-skip), Fase 7 berjalan
+- **Status:** Fase 0–5 selesai, Fase 6 menunggu App Links (di-skip), Fase 7 live di dev (menunggu uji push manual), Fase 8 berjalan
 - **Dibuat:** 2026-11-20
 - **Repo terkait:** `narrativ-backend`, `narrativ-android`, `homelabs-gitops`, `web-admin`, `web-landing`
 - **Lokasi dokumen:** `narrativ-web-client/docs/PLAN.md`
@@ -25,7 +25,7 @@ Status fase di tabel ringkasan ikut diperbarui. Item yang batal dicoret (`~~...~
 | 5    | Akun, notifikasi in-app, dan keamanan        | ✅ Selesai  |
 | 6    | Sharing link (tanpa konten publik)           | 🟡 Berjalan |
 | 7    | Web push dan PWA                             | 🟡 Berjalan |
-| 8    | Google Sign-In (OAuth)                       | ⚪ Belum    |
+| 8    | Google Sign-In (OAuth)                       | 🟡 Berjalan |
 | 9    | Hardening dan launch prod                    | ⚪ Belum    |
 
 Legenda: ⚪ belum, 🟡 berjalan, ✅ selesai, ⛔ terblokir
@@ -49,6 +49,7 @@ Legenda: ⚪ belum, 🟡 berjalan, ✅ selesai, ⛔ terblokir
 | D11 | **Tema dark-only** dengan palet aplikasi (plum/lilac, Bricolage Grotesque), sama dengan Android dan `web-landing`                                                                                                                                  | Konsisten dengan brand. Komponen memakai token warna, sehingga tema terang cukup mendefinisikan ulang token                                                                                                    |
 | D12 | **CSP ketat sejak Fase 1:** script inline React Router diizinkan lewat hash SHA-256 yang dihitung saat build (`scripts/csp.mjs`)                                                                                                                   | Tidak perlu `'unsafe-inline'` untuk script. `style-src` masih `'unsafe-inline'` karena sonner menyisipkan stylesheet saat runtime                                                                              |
 | D13 | Web client di-deploy sebagai image nginx statis (SPA). Tidak beralih ke Node: tidak ada SSR (D15)                                                                                                                                                  | SPA tidak butuh server. Server Node baru diperlukan saat SSR dinyalakan                                                                                                                                        |
+| D16 | Client ID Google untuk tombol Sign in with Google dibaca dari backend saat runtime (`GET /auth/google-config`), bukan variabel build. Tombol memakai Google Identity Services (popup/FedCM), bukan One Tap                                         | Satu image untuk semua environment (seperti config web push), dan audience ID token selalu sama dengan yang diverifikasi backend. One Tap bisa diredam browser (cooldown FedCM), tombol selalu bisa diklik     |
 | D15 | **Post dan profil hanya untuk user yang login.** Tidak ada endpoint publik, tidak ada SSR, dan preview link (WhatsApp, X, dll.) hanya menampilkan kartu generik NARRATIV dari web-landing, tanpa caption atau gambar. Seluruh web client `noindex` | Keputusan produk (2026-11-20). Crawler preview tidak login, jadi isi apa pun di tag preview sama dengan membuka konten tanpa login. Link share tetap berguna: penerima diarahkan ke login lalu kembali ke link |
 | D14 | Feed belum memakai virtualisasi (TanStack Virtual). Dievaluasi di Fase 9 kalau profil performa memerlukannya                                                                                                                                       | Kartu post tingginya bervariasi (media), sehingga virtualisasi dengan window scroll menambah kompleksitas yang besar. Feed dimuat 10 post per halaman dan jarang di-scroll sangat jauh                         |
 
@@ -124,7 +125,7 @@ Kolom _Kapan_ menunjukkan paling lambat item harus selesai.
 | BE-08 | ~~URL media stabil untuk `og:image`~~ Dibatalkan: preview link tidak menampilkan isi post (D15)                                                                                                                                                                                      | backend                   | Fase 6         | ~~batal~~ | #73 ditutup |
 | BE-09 | ~~IP client dari server SSR~~ Dibatalkan: tidak ada SSR (D15)                                                                                                                                                                                                                        | backend                   | Fase 6         | ~~batal~~ | –           |
 | BE-10 | Format URL share: `/p/{postId}`, `/u/{username}` (dipakai web; penerima yang belum login diarahkan ke login lalu kembali). Sisa: link share Android, `data` notifikasi, template email, App Links (intent filter Android + `assetlinks.json` dengan fingerprint sertifikat)          | backend + android         | Fase 6         | 🟡        | web         |
-| BE-11 | `platform` device `ANDROID`/`IOS`/`WEB`, payload `webpush` dengan link (APP_WEB_ORIGIN), `GET /devices/web-push-config` (config Firebase web per environment), token `UNREGISTERED` dinonaktifkan (sudah ada). ~~Subscribe topic `global` dari server~~ tidak dilakukan, lihat BE-19 | backend                   | Fase 7         | 🟡 PR     | #74         |
+| BE-11 | `platform` device `ANDROID`/`IOS`/`WEB`, payload `webpush` dengan link (APP_WEB_ORIGIN), `GET /devices/web-push-config` (config Firebase web per environment), token `UNREGISTERED` dinonaktifkan (sudah ada). ~~Subscribe topic `global` dari server~~ tidak dilakukan, lihat BE-19 | backend                   | Fase 7         | ✅        | #74         |
 | BE-12 | Web app terdaftar di Firebase dengan App Check reCAPTCHA Enterprise, app id masuk `allowed-apps`                                                                                                                                                                                     | Firebase + backend        | Fase 9         | [ ]       |             |
 | BE-13 | (Opsional) Grace window rotasi refresh token, dievaluasi setelah Fase 2                                                                                                                                                                                                              | backend                   | Setelah Fase 2 | [ ]       |             |
 | BE-14 | (Opsional) Android mengirim `X-Client-Platform: android` dan `X-App-Version`                                                                                                                                                                                                         | android                   | Kapan saja     | [ ]       |             |
@@ -133,8 +134,9 @@ Kolom _Kapan_ menunjukkan paling lambat item harus selesai.
 | BE-17 | Origin web masuk `APP_CORS_ALLOWED_ORIGINS` dev (sementara). Di belakang Cloudflare + ingress, backend melihat request sebagai `http://`, sehingga origin `https://` dianggap lintas origin dan POST ditolak 403                                                                     | gitops configmap          | Fase 3         | [x]       | gitops#13   |
 | BE-18 | Akar masalah BE-17: ingress-nginx `use-forwarded-headers: "true"` agar `X-Forwarded-Proto: https` dari Cloudflare diteruskan. Setelah itu entri BE-17 tidak diperlukan lagi                                                                                                          | rke2 HelmChartConfig      | Fase 9         | [ ]       |             |
 | BE-19 | Bug yang sudah ada: tidak ada device yang subscribe ke topic `global` (Android maupun backend), sehingga broadcast admin dan casual push tidak sampai ke siapa pun                                                                                                                   | backend + android         | Terpisah       | [ ]       |             |
-| BE-20 | Isi env web push dev: `APP_WEB_ORIGIN` dan `APP_WEB_PUSH_*` (Firebase web app + VAPID key dari Firebase console) di configmap `narrativ-dev`                                                                                                                                         | gitops + Firebase console | Fase 7         | [ ]       |             |
+| BE-20 | Isi env web push dev: `APP_WEB_ORIGIN` dan `APP_WEB_PUSH_*` (Firebase web app + VAPID key dari Firebase console) di configmap `narrativ-dev`                                                                                                                                         | gitops + Firebase console | Fase 7         | ✅        | gitops #15  |
 | BE-21 | (Nanti) Pindah dari token FCM ke registrasi Firebase Installation ID (`getToken` deprecated di SDK web), bersamaan di backend, Android, dan web                                                                                                                                      | backend + android + web   | Setelah Fase 9 | [ ]       |             |
+| BE-22 | `GET /auth/google-config` (publik): client ID Google environment ini untuk tombol web, dari `GOOGLE_CLIENT_ID` yang sudah ada                                                                                                                                                        | backend                   | Fase 8         | 🟡 PR     | #76         |
 
 ### Detail BE-01: Envelope di OpenAPI
 
@@ -302,7 +304,8 @@ berisi konten) dibatalkan; PR backend #73, web #7, dan gitops #14 ditutup tanpa 
 
 ### Fase 7: Web push dan PWA 🟡
 
-- [ ] BE-11 merged (backend #74) dan BE-20 (env Firebase web di dev)
+- [x] BE-11 merged (backend #74) dan BE-20 (env Firebase web di dev, gitops #15); terverifikasi di dev dengan Chrome:
+      token didaftarkan (`POST /devices` 200) dan dinonaktifkan (`POST /devices/deactivate` 200)
 - [x] Firebase Messaging dengan paket modular `@firebase/app` + `@firebase/messaging` (paket payung `firebase` membawa
       Firestore dengan `@grpc/grpc-js` yang rentan). Service worker dibundle sendiri dari `@firebase/messaging/sw` ke
       `/firebase-messaging-sw.js` (origin sendiri, CSP tetap ketat); config Firebase dari backend saat runtime
@@ -322,11 +325,19 @@ berisi konten) dibatalkan; PR backend #73, web #7, dan gitops #14 ditutup tanpa 
 
 Dipisah dari Fase 2 karena butuh konfigurasi bolak-balik di Firebase dan Google Cloud Console.
 
-- [ ] BE-06 selesai untuk dev, lalu prod
-- [ ] Google Identity Services: tombol "Sign in with Google" di halaman login dan register, kirim ID token ke `POST /auth/google`
-- [ ] Penanganan akun yang sudah ada dengan email sama (backend menautkan otomatis), user dibatalkan, dan popup diblokir
-- [ ] Ganti email untuk akun Google (`/users/me/email` dengan ID token baru)
-- [ ] CSP mengizinkan domain Google Identity Services
+- [ ] BE-06 selesai untuk dev (`https://app-dev-narrativ.rizkysiregar.my.id`, `http://localhost:3000`, `http://localhost`),
+      lalu prod
+- [ ] BE-22 merged (backend #76), lalu `npm run api:generate` menggantikan tipe yang ditambahkan manual
+- [x] Google Identity Services dimuat saat dibutuhkan (hanya di halaman yang punya tombol). Tombol resmi Google di
+      login dan register, ID token ke `POST /auth/google`; tidak tampil kalau environment tidak punya client ID, dan
+      ada keterangan singkat kalau script diblokir atau offline (form kata sandi tetap jalan)
+- [x] Akun dengan email sama ditautkan oleh backend (tidak ada perubahan); user menutup popup tidak memicu apa pun;
+      error backend (mis. akun diblokir) tampil di atas tombol
+- [x] Ganti email dan hapus akun untuk akun Google: tombol "Lanjutkan dengan Google" sebagai pengganti kata sandi
+      (`idToken` di `/users/me/email` dan `/users/me/deletion`), kode OTP tetap wajib untuk ganti email
+- [x] CSP mengizinkan `accounts.google.com/gsi/` (script, style, frame, connect); COOP `same-origin-allow-popups` agar
+      popup bisa mengirim hasilnya. Dicek di Chrome dengan header build: tidak ada pelanggaran CSP
+- [ ] Uji di dev setelah BE-06 dan BE-22: login dan daftar dengan Google, akun yang sudah ada tertaut
 
 ### Fase 9: Hardening dan launch prod ⚪
 
@@ -412,3 +423,4 @@ Setiap item fitur dianggap selesai kalau:
 | 2026-11-20 | Fase 5 selesai (PR #6). Ditemukan: beacon Cloudflare Web Analytics diblokir CSP (item Fase 9)                                                                                                                                               |
 | 2026-11-20 | Keputusan D15: post dan profil tidak boleh dibuka tanpa login. Fase 6 diubah menjadi sharing link tanpa konten publik; BE-07/08/09 batal, PR #73 (backend), #7 (web), #14 (gitops) ditutup                                                  |
 | 2026-11-20 | Fase 7: backend #74 (web push), web PR #9 (push + PWA). App Links (Fase 6) di-skip dulu. Ditemukan BE-19 (topic `global` tanpa subscriber)                                                                                                  |
+| 2026-11-21 | Fase 7 terverifikasi di dev (BE-11, BE-20 selesai). Fase 8: backend #76 (BE-22, `GET /auth/google-config`), web PR Google Sign-In. Keputusan D16                                                                                            |

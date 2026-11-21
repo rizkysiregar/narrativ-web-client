@@ -77,6 +77,9 @@ export function sendEmailChangeOtp(email: string) {
   return request(api.POST("/users/me/email/otp", { body: { email } }));
 }
 
+/** That the caller owns the account: the current password, or a fresh Google ID token for a Google account. */
+export type Proof = { password: string } | { idToken: string };
+
 /**
  * Completes an email change. The backend ends every other session and answers a new one for this device (its
  * refresh token arrives as the HttpOnly cookie).
@@ -85,7 +88,7 @@ export function useConfirmEmailChange() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: { email: string; otp: string; password: string }) =>
+    mutationFn: (body: { email: string; otp: string } & Proof) =>
       request(api.POST("/users/me/email", { body })),
     onSuccess: async (session) => {
       startSession(session);
@@ -99,7 +102,7 @@ export function useDeleteAccount() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (password: string) => request(api.POST("/users/me/deletion", { body: { password } })),
+    mutationFn: (proof: Proof) => request(api.POST("/users/me/deletion", { body: proof })),
     onSuccess: () => {
       endSession();
       queryClient.clear();

@@ -15,6 +15,14 @@ export async function login(values: LoginValues): Promise<void> {
   startSession(await request(api.POST("/auth/login", { body: values })));
 }
 
+/**
+ * Signs in with a Google ID token. The backend creates the account on first use, or links the Google account to an
+ * existing one with the same email.
+ */
+export async function googleLogin(idToken: string): Promise<void> {
+  startSession(await request(api.POST("/auth/google", { body: { idToken } })));
+}
+
 /** Sends the registration code, or answers verificationRequired: false where emails are not verified. */
 export function sendRegisterOtp(email: string) {
   return request(api.POST("/auth/register/otp", { body: { email } }));
@@ -66,6 +74,10 @@ export async function resetPassword(email: string, resetToken: string, newPasswo
 
 export function useLogin() {
   return useMutation({ mutationFn: login });
+}
+
+export function useGoogleLogin() {
+  return useMutation({ mutationFn: googleLogin });
 }
 
 /**

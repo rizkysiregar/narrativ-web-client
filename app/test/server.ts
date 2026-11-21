@@ -14,7 +14,7 @@ const emptyFeed = {
 };
 
 /**
- * The fake backend of the tests: an empty home feed and no unread notifications by default (the app shell asks for
+ * The fake backend of the tests: an empty home feed, no unread notifications and no Google sign-in by default (the app shell asks for
  * the badge on every page), so a test needs no setup for what it is not about. Each test adds its handlers with
  * server.use(...).
  */
@@ -22,5 +22,9 @@ export const server = setupServer(
   http.get(api("/posts"), () => HttpResponse.json({ code: "200", message: "Success", data: emptyFeed })),
   http.get(api("/users/me/notifications/unread-count"), () =>
     HttpResponse.json({ code: "200", message: "Success", data: { unread: 0 } }),
+  ),
+  // no Google client id: the auth and account pages show no Google button unless a test turns it on
+  http.get(api("/auth/google-config"), () =>
+    HttpResponse.json({ code: "200", message: "Success", data: { enabled: false } }),
   ),
 );
