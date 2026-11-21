@@ -42,6 +42,11 @@
     "cancel": "Batal",
     "close": "Tutup"
   },
+  "google": {
+    "or": "atau",
+    "unavailable": "Masuk dengan Google sedang tidak tersedia. Periksa koneksi atau ekstensi browser Anda.",
+    "verify": "Mendaftar dengan Google? Konfirmasi dengan akun Google Anda sebagai gantinya."
+  },
   "validation": {
     "required": "Kolom ini wajib diisi",
     "username": {

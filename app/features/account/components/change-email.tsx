@@ -6,13 +6,14 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
+import { GoogleButton } from "~/features/google";
 import { Button } from "~/shared/ui/button";
 import { FormError } from "~/shared/ui/form-error";
 import { FormField } from "~/shared/ui/form-field";
 import { Input } from "~/shared/ui/input";
 import { PasswordInput } from "~/shared/ui/password-input";
 
-import { sendEmailChangeOtp, useConfirmEmailChange, useMe } from "../api";
+import { sendEmailChangeOtp, useConfirmEmailChange, useMe, type Proof } from "../api";
 import { confirmEmailSchema, newEmailSchema, type ConfirmEmailValues, type NewEmailValues } from "../schemas";
 
 /** New address, then the code sent to it plus the password. Other devices are signed out by the backend. */
@@ -87,22 +88,25 @@ function ConfirmStep({ email, minutes, onBack }: { email: string; minutes: strin
     defaultValues: { otp: "", password: "" },
   });
   const { errors } = form.formState;
+  const submit = (otp: string, proof: Proof) => {
+    confirm.mutate(
+      { email, otp, ...proof },
+      {
+        onSuccess: () => {
+          toast.success(t("account.email.changed"));
+          void navigate("/settings", { replace: true });
+        },
+      },
+    );
+  };
 
   return (
     <form
       noValidate
       className="flex flex-col gap-4"
       onSubmit={(event) =>
-        void form.handleSubmit((values) => {
-          confirm.mutate(
-            { email, ...values },
-            {
-              onSuccess: () => {
-                toast.success(t("account.email.changed"));
-                void navigate("/settings", { replace: true });
-              },
-            },
-          );
+        void form.handleSubmit(({ otp, password }) => {
+          submit(otp, { password });
         })(event)
       }
     >
@@ -132,6 +136,20 @@ function ConfirmStep({ email, minutes, onBack }: { email: string; minutes: strin
           {t("auth.otp.changeEmail")}
         </Button>
       </div>
+      <GoogleButton
+        text="continue_with"
+        divider={t("google.or")}
+        hint={t("google.verify")}
+        pending={confirm.isPending}
+        onCredential={(idToken) => {
+          // the code is still needed, only the password is replaced by the Google account
+          void form.trigger("otp").then((valid) => {
+            if (valid) {
+              submit(form.getValues("otp").trim(), { idToken });
+            }
+          });
+        }}
+      />
     </form>
   );
 }

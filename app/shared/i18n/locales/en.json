@@ -42,6 +42,11 @@
     "cancel": "Cancel",
     "close": "Close"
   },
+  "google": {
+    "or": "or",
+    "unavailable": "Sign in with Google is not available right now. Check your connection or browser extensions.",
+    "verify": "Signed up with Google? Confirm with your Google account instead."
+  },
   "validation": {
     "required": "This field is required",
     "username": {

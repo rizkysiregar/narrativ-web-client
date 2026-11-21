@@ -6,13 +6,14 @@ import { Trans, useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
+import { GoogleButton } from "~/features/google";
 import { LANDING_URL } from "~/shared/config/env";
 import { Button } from "~/shared/ui/button";
 import { FormField } from "~/shared/ui/form-field";
 import { Input } from "~/shared/ui/input";
 import { PasswordInput } from "~/shared/ui/password-input";
 
-import { register, sendRegisterOtp, verifyRegisterOtp } from "../api";
+import { register, sendRegisterOtp, useGoogleLogin, verifyRegisterOtp } from "../api";
 import { registerSchema, type RegisterValues } from "../schemas";
 import { AuthCard } from "./auth-card";
 import { FormError } from "~/shared/ui/form-error";
@@ -50,6 +51,7 @@ export function RegisterFlow() {
     },
   });
   const { errors } = form.formState;
+  const google = useGoogleLogin();
 
   const createAccount = useMutation({
     mutationFn: ({ values, token }: { values: RegisterValues; token: string | null }) =>
@@ -100,7 +102,7 @@ export function RegisterFlow() {
 
   const legal = (page: "terms" | "privacy") => `${LANDING_URL}${i18n.language === "en" ? "/en" : ""}/${page}`;
   const query = searchParams.size > 0 ? `?${searchParams.toString()}` : "";
-  const busy = start.isPending || createAccount.isPending;
+  const busy = start.isPending || createAccount.isPending || google.isPending;
 
   return (
     <AuthCard
@@ -172,6 +174,15 @@ export function RegisterFlow() {
           {t("auth.register.submit")}
         </Button>
       </form>
+      <GoogleButton
+        text="signup_with"
+        divider={t("google.or")}
+        pending={google.isPending}
+        error={google.error}
+        onCredential={(idToken) => {
+          google.mutate(idToken);
+        }}
+      />
     </AuthCard>
   );
 }

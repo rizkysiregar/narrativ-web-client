@@ -592,6 +592,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/google-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Google OAuth client id of this environment, for the web client's Sign in with Google button
+         * @description Public value, no login needed. enabled=false while the environment has no client id
+         */
+        get: operations["googleConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/google": {
         parameters: {
             query?: never;
@@ -837,23 +857,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/devices/web-push-config": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Firebase web app config and VAPID key of this environment, for the web client's push token */
-        get: operations["webPushConfig"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/devices/deactivate": {
         parameters: {
             query?: never;
@@ -868,6 +871,26 @@ export interface paths {
          * @description Only a token that belongs to the caller is deactivated; an unknown token is ignored
          */
         post: operations["deactivateDevice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/web-push-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Firebase web app config and VAPID key of this environment, for the web client's push token
+         * @description Public values, not secrets. enabled=false while the environment has no Firebase web app configured
+         */
+        get: operations["webPushConfig"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1879,6 +1902,10 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        GoogleSignInConfigResponse: {
+            clientId?: string;
+            enabled?: boolean;
+        };
         GoogleLoginRequest: {
             idToken: string;
         };
@@ -2276,14 +2303,6 @@ export interface components {
             description?: string;
             paramValue?: string;
         };
-        WebPushConfigResponse: {
-            apiKey?: string;
-            appId?: string;
-            enabled?: boolean;
-            messagingSenderId?: string;
-            projectId?: string;
-            vapidKey?: string;
-        };
         UserDetailDTO: {
             email?: string;
             firstName?: string;
@@ -2318,6 +2337,14 @@ export interface components {
             /** Format: email */
             email: string;
             otp: string;
+        };
+        WebPushConfigResponse: {
+            apiKey?: string;
+            appId?: string;
+            enabled?: boolean;
+            messagingSenderId?: string;
+            projectId?: string;
+            vapidKey?: string;
         };
     };
     responses: never;
@@ -5616,6 +5643,126 @@ export interface operations {
             };
         };
     };
+    googleConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["GoogleSignInConfigResponse"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    webPushConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["WebPushConfigResponse"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getFileUrl: {
         parameters: {
             query: {
@@ -7605,66 +7752,6 @@ export interface operations {
                     "*/*": {
                         code: string;
                         data?: components["schemas"]["PublicUserDTO"];
-                        message: string;
-                    };
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    webPushConfig: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": {
-                        code: string;
-                        data?: components["schemas"]["WebPushConfigResponse"];
                         message: string;
                     };
                 };

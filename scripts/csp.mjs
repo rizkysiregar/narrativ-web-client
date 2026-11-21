@@ -23,17 +23,22 @@ export const PUSH_ORIGINS = [
   "https://fcmregistrations.googleapis.com",
 ];
 
+// Google Identity Services (Sign in with Google), as Google documents for a CSP: its script, the button's stylesheet
+// and iframe, and the calls the button makes
+export const GOOGLE_SIGN_IN = "https://accounts.google.com/gsi/";
+
 export function contentSecurityPolicy(scriptHashes) {
   return [
     "default-src 'self'",
-    `script-src 'self' ${scriptHashes.join(" ")}`.trim(),
+    `script-src 'self' ${GOOGLE_SIGN_IN}client ${scriptHashes.join(" ")}`.trim(),
     // sonner injects its stylesheet at runtime; inline styles cannot run code, inline scripts stay blocked
-    "style-src 'self' 'unsafe-inline'",
+    `style-src 'self' 'unsafe-inline' ${GOOGLE_SIGN_IN}style`,
     `img-src 'self' data: blob: ${MEDIA_ORIGIN}`,
     `media-src 'self' blob: ${MEDIA_ORIGIN}`,
     "font-src 'self'",
     // the API is same-origin (the ingress routes /api to the backend); post media upload straight to MinIO
-    `connect-src 'self' ${MEDIA_ORIGIN} ${PUSH_ORIGINS.join(" ")}`,
+    `connect-src 'self' ${MEDIA_ORIGIN} ${PUSH_ORIGINS.join(" ")} ${GOOGLE_SIGN_IN}`,
+    `frame-src ${GOOGLE_SIGN_IN}`,
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'self'",
@@ -49,7 +54,8 @@ add_header X-Content-Type-Options nosniff always;
 add_header X-Frame-Options DENY always;
 add_header Referrer-Policy strict-origin-when-cross-origin always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
-add_header Cross-Origin-Opener-Policy same-origin always;
+# allow-popups: the Sign in with Google popup must be able to hand its answer back to this window
+add_header Cross-Origin-Opener-Policy same-origin-allow-popups always;
 # everything is behind sign-in: nothing to index (public/robots.txt says the same)
 add_header X-Robots-Tag "noindex, nofollow" always;
 `;

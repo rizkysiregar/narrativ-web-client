@@ -16,14 +16,22 @@ describe("csp", () => {
   it("allows only the hashed inline scripts", () => {
     const csp = contentSecurityPolicy(["'sha256-abc'"]);
 
-    expect(csp).toContain("script-src 'self' 'sha256-abc'");
+    expect(csp).toContain("script-src 'self' https://accounts.google.com/gsi/client 'sha256-abc'");
     expect(csp).not.toMatch(/script-src[^;]*unsafe-inline/);
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain(`img-src 'self' data: blob: ${MEDIA_ORIGIN}`);
     expect(csp).toContain(`media-src 'self' blob: ${MEDIA_ORIGIN}`);
     expect(csp).toContain(
-      `connect-src 'self' ${MEDIA_ORIGIN} https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com`,
+      `connect-src 'self' ${MEDIA_ORIGIN} https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com https://accounts.google.com/gsi/;`,
     );
+  });
+
+  it("lets Sign in with Google load its script, button and popup", () => {
+    const csp = contentSecurityPolicy([]);
+
+    expect(csp).toContain("style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style");
+    expect(csp).toContain("frame-src https://accounts.google.com/gsi/");
+    expect(securityHeaders(csp)).toContain("Cross-Origin-Opener-Policy same-origin-allow-popups always;");
   });
 
   it("keeps every page out of search engines", () => {

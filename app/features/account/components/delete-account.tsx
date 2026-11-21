@@ -4,12 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
+import { GoogleButton } from "~/features/google";
 import { Button } from "~/shared/ui/button";
 import { FormError } from "~/shared/ui/form-error";
 import { FormField } from "~/shared/ui/form-field";
 import { PasswordInput } from "~/shared/ui/password-input";
 
-import { useDeleteAccount } from "../api";
+import { useDeleteAccount, type Proof } from "../api";
 import { passwordSchema, type PasswordValues } from "../schemas";
 
 export function DeleteAccount() {
@@ -20,6 +21,14 @@ export function DeleteAccount() {
     resolver: zodResolver(passwordSchema),
     defaultValues: { password: "" },
   });
+  const confirm = (proof: Proof) => {
+    remove.mutate(proof, {
+      onSuccess: () => {
+        toast.success(t("account.delete.done"));
+        void navigate("/login", { replace: true });
+      },
+    });
+  };
 
   return (
     <form
@@ -27,12 +36,7 @@ export function DeleteAccount() {
       className="flex flex-col gap-4 px-4 py-6"
       onSubmit={(event) =>
         void form.handleSubmit(({ password }) => {
-          remove.mutate(password, {
-            onSuccess: () => {
-              toast.success(t("account.delete.done"));
-              void navigate("/login", { replace: true });
-            },
-          });
+          confirm({ password });
         })(event)
       }
     >
@@ -48,6 +52,15 @@ export function DeleteAccount() {
       <Button type="submit" variant="danger" className="self-start" disabled={remove.isPending}>
         {t("account.delete.confirm")}
       </Button>
+      <GoogleButton
+        text="continue_with"
+        divider={t("google.or")}
+        hint={t("google.verify")}
+        pending={remove.isPending}
+        onCredential={(idToken) => {
+          confirm({ idToken });
+        }}
+      />
     </form>
   );
 }
