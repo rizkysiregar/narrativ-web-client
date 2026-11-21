@@ -147,7 +147,9 @@
     "notFoundBody": "It may have been deleted, or you cannot see it.",
     "media": {
       "gallery": "Media, {{count}} items",
-      "item": "Media {{index}} of {{count}} by @{{author}}"
+      "item": "Media {{index}} of {{count}} by @{{author}}",
+      "previous": "Previous photo",
+      "next": "Next photo"
     },
     "like": "Like",
     "delete": {

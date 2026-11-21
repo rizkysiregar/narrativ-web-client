@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http } from "msw";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { startSession } from "~/api/session";
 import { changeLanguage } from "~/shared/i18n";
@@ -116,6 +116,45 @@ describe("post card", () => {
     renderApp("/explore");
 
     expect(await screen.findByText(/taken down by a moderator\. Reason: Spam/)).toBeInTheDocument();
+  });
+});
+
+describe("media gallery", () => {
+  it("moves between photos with the buttons and the arrow keys, and each photo opens the post", async () => {
+    const scrolls: number[] = [];
+    // jsdom has no layout: record where the gallery is asked to scroll to
+    Element.prototype.scrollTo = vi.fn(function (this: Element, options?: ScrollToOptions | number) {
+      scrolls.push(typeof options === "object" ? (options.left ?? 0) : 0);
+    });
+    const three = ["1", "2", "3"].map((n) => ({
+      id: `m${n}`,
+      type: "IMAGE" as const,
+      url: `https://media.test/${n}.jpg`,
+    }));
+    server.use(
+      http.get(api("/posts/explore"), () =>
+        ok(feedPage([post({ id: "p9", username: "budi", media: three })])),
+      ),
+    );
+    renderApp("/explore");
+
+    const gallery = await screen.findByRole("region", { name: "Media, 3 items" });
+    expect(screen.queryByRole("button", { name: "Previous photo" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Next photo" }));
+    await user.click(screen.getByRole("button", { name: "Next photo" }));
+    // the last photo: nowhere further to go
+    expect(screen.queryByRole("button", { name: "Next photo" })).not.toBeInTheDocument();
+
+    gallery.focus();
+    await user.keyboard("{ArrowLeft}");
+    expect(screen.getByRole("button", { name: "Next photo" })).toBeInTheDocument();
+    expect(scrolls).toHaveLength(3);
+
+    const photo = screen.getByRole("img", { name: "Media 1 of 3 by @budi" });
+    expect(photo).toHaveAttribute("draggable", "false");
+    expect(photo.closest("a")).toHaveAttribute("href", "/p/p9");
+    // the buttons are not inside a link
+    expect(screen.getByRole("button", { name: "Previous photo" }).closest("a")).toBeNull();
   });
 });
 
