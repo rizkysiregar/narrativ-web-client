@@ -30,9 +30,9 @@ pipeline {
         NODE_IMAGE = 'node:24-alpine'
         // Sentry (error reporting). The DSN is public and goes into the bundle; without it nothing is reported.
         // Source maps are uploaded when the secret text credential `sentry-auth-token` exists.
-        SENTRY_DSN = ''
-        SENTRY_ORG = ''
-        SENTRY_PROJECT = ''
+        SENTRY_DSN = 'https://0ad0c268a2bf89aad1a9ae1a8933414d@o4512470292955136.ingest.us.sentry.io/4512470363799552'
+        SENTRY_ORG = 'rizkysiregar'
+        SENTRY_PROJECT = 'narrativ-web-client'
         YQ_IMAGE = 'mikefarah/yq:4.45.4'
     }
 

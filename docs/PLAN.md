@@ -368,7 +368,8 @@ dev setelah deploy (D17–D19).
 - [x] Sentry terpasang (`app/shared/monitoring`): hanya error tak terduga (crash, rejection, error boundary), tanpa
       tracing/replay, tanpa data pribadi (tanpa IP, cookie, header, body, query string; user hanya id). Environment
       dari host, release = commit. Source map di-upload dari Jenkins lalu dihapus dari image
-- [ ] Sentry diaktifkan: DSN, org dan project di `Jenkinsfile`, credential `sentry-auth-token` di Jenkins
+- [x] Sentry diaktifkan: project `rizkysiregar/narrativ-web-client` (region US), DSN, org dan project di `Jenkinsfile`,
+      credential `sentry-auth-token` di Jenkins untuk source map
 - [x] BE-13: grace window rotasi refresh token (backend #78). Ditemukan smoke test: refresh saat start yang
       terputus oleh navigasi membuat sesi valid berakhir pada load berikutnya
 - [x] BE-23: refresh, logout, dan google-config punya bucket rate limit sendiri (backend #77). Ditemukan saat audit:
