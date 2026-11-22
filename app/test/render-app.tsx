@@ -9,6 +9,8 @@ import ForgotPassword from "~/routes/forgot-password";
 import GuestLayout from "~/routes/guest";
 import Home from "~/routes/home";
 import Login from "~/routes/login";
+import MessageThread from "~/routes/message-thread";
+import Messages from "~/routes/messages";
 import MyProfile from "~/routes/my-profile";
 import NotFound from "~/routes/not-found";
 import Notifications from "~/routes/notifications";
@@ -58,6 +60,8 @@ export function renderApp(path: string) {
         },
         { id: "followers", path: "/u/:username/followers", Component: page(Follows) },
         { id: "following", path: "/u/:username/following", Component: page(Follows) },
+        { path: "/messages", Component: Messages },
+        { path: "/messages/:channelId", Component: page(MessageThread) },
         { path: "/profile", Component: MyProfile },
         { path: "/notifications", Component: Notifications },
         { path: "/settings", Component: Settings },

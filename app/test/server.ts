@@ -23,6 +23,13 @@ export const server = setupServer(
   http.get(api("/users/me/notifications/unread-count"), () =>
     HttpResponse.json({ code: "200", message: "Success", data: { unread: 0 } }),
   ),
+  // chat is off by default (503 like the backend without app.marpokat.*): the shell asks for a token on every page
+  http.post(api("/chat/token"), () =>
+    HttpResponse.json(
+      { code: "503", message: "Chat unavailable", data: null, errorCode: "CHAT_UNAVAILABLE" },
+      { status: 503 },
+    ),
+  ),
   // no Google client id: the auth and account pages show no Google button unless a test turns it on
   http.get(api("/auth/google-config"), () =>
     HttpResponse.json({ code: "200", message: "Success", data: { enabled: false } }),

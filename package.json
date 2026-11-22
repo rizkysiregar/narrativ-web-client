@@ -29,6 +29,8 @@
     "@firebase/messaging": "^0.13.3",
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "@hookform/resolvers": "^7.0.7",
+    "@rizkysiregar/marpokat-core": "^0.1.1",
+    "@rizkysiregar/marpokat-react": "^0.1.1",
     "@sentry/react": "^10.78.0",
     "@tanstack/react-query": "^5.108.1",
     "class-variance-authority": "^0.7.1",

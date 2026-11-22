@@ -20,6 +20,8 @@ export default [
     route("u/:username/followers", "routes/follows.tsx", { id: "followers" }),
     route("u/:username/following", "routes/follows.tsx", { id: "following" }),
     route("profile", "routes/my-profile.tsx"),
+    route("messages", "routes/messages.tsx"),
+    route("messages/:channelId", "routes/message-thread.tsx"),
     route("notifications", "routes/notifications.tsx"),
     route("settings", "routes/settings.tsx"),
     route("settings/profile", "routes/settings-profile.tsx"),

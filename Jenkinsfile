@@ -55,17 +55,29 @@ pipeline {
 
         stage('Install and Verify') {
             steps {
-                // verify = prettier check, eslint, typecheck and unit tests. HUSKY=0: no git hooks in CI
-                sh '''
-                    docker run --rm \\
-                      --user "$(id -u):$(id -g)" \\
-                      --volumes-from "${JENKINS_CONTAINER_ID:-$HOSTNAME}" \\
-                      --workdir "$WORKSPACE" \\
-                      --env npm_config_cache=/tmp/.npm \\
-                      --env HUSKY=0 \\
-                      "$NODE_IMAGE" \\
-                      sh -c 'npm ci && npm run verify'
-                '''
+                // verify = prettier check, eslint, typecheck and unit tests. HUSKY=0: no git hooks in CI.
+                // The Marpokat SDK comes from GitHub Packages (.npmrc names the registry): the token is written to a
+                // throwaway user config inside the container, never into the workspace.
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'github-all-repo-pat',
+                        usernameVariable: 'NPM_REGISTRY_USER',
+                        passwordVariable: 'NPM_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        docker run --rm \\
+                          --user "$(id -u):$(id -g)" \\
+                          --volumes-from "${JENKINS_CONTAINER_ID:-$HOSTNAME}" \\
+                          --workdir "$WORKSPACE" \\
+                          --env npm_config_cache=/tmp/.npm \\
+                          --env npm_config_userconfig=/tmp/.npmrc \\
+                          --env HUSKY=0 \\
+                          --env NPM_TOKEN \\
+                          "$NODE_IMAGE" \\
+                          sh -c 'printf "//npm.pkg.github.com/:_authToken=%s\\n" "$NPM_TOKEN" > /tmp/.npmrc && npm ci && npm run verify'
+                    '''
+                }
             }
         }
 
