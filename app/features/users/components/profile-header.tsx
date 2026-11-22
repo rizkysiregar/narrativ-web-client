@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
 
 import { useSession } from "~/api/session";
+import { MessageButton } from "~/features/chat";
 import { SafetyMenu } from "~/features/safety";
 import { formatCount } from "~/shared/lib/format";
 import { nonBlank } from "~/shared/lib/text";
@@ -54,6 +55,7 @@ export function ProfileHeader({ user }: { user: PublicUser }) {
             {t("profile.edit")}
           </Link>
         )}
+        {!self && user.id && <MessageButton userId={user.id} />}
         {!self && user.id && status.data && (
           <FollowButton userId={user.id} following={status.data.isFollowing ?? false} username={username} />
         )}

@@ -806,6 +806,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chat/dm/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Open the direct message with another user
+         * @description Creates the chat channel of the two users when it does not exist yet and returns its id. A user on either side of a block does not exist for the other (404 USER_NOT_FOUND). 400 for yourself, 503 CHAT_UNAVAILABLE while chat is off or unreachable
+         */
+        post: operations["openDirectMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Token for the chat service (Marpokat)
+         * @description Syncs the user's chat profile and returns a Marpokat user token with the api key and address of this environment. Ask again shortly before expiresAt. 503 CHAT_UNAVAILABLE while chat is off or unreachable
+         */
+        post: operations["token"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/comments/{commentId}": {
         parameters: {
             query?: never;
@@ -1780,6 +1820,14 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        ChatTokenResponse: {
+            apiKey?: string;
+            baseUrl?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            token?: string;
+            userId?: string;
+        };
         CommentResponse: {
             canDelete?: boolean;
             commentContent?: string;
@@ -1865,6 +1913,9 @@ export interface components {
         DeleteAccountRequest: {
             idToken?: string;
             password?: string;
+        };
+        DirectMessageResponse: {
+            channelId?: string;
         };
         DismissReportRequest: {
             note?: string;
@@ -5403,6 +5454,128 @@ export interface operations {
                     "*/*": {
                         code: string;
                         data?: components["schemas"]["ResetTokenDTO"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    openDirectMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["DirectMessageResponse"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    token: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["ChatTokenResponse"];
                         message: string;
                     };
                 };

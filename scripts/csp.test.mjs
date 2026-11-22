@@ -24,7 +24,7 @@ describe("csp", () => {
     expect(csp).toContain(`img-src 'self' data: blob: ${MEDIA_ORIGIN}`);
     expect(csp).toContain(`media-src 'self' blob: ${MEDIA_ORIGIN}`);
     expect(csp).toContain(
-      `connect-src 'self' ${MEDIA_ORIGIN} https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com https://accounts.google.com/gsi/ https://cloudflareinsights.com;`,
+      `connect-src 'self' ${MEDIA_ORIGIN} https://*.rizkysiregar.my.id wss://*.rizkysiregar.my.id https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com https://accounts.google.com/gsi/ https://cloudflareinsights.com;`,
     );
   });
 

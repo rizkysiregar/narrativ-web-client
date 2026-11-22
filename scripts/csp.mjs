@@ -17,6 +17,9 @@ export function inlineScriptHashes(html) {
 
 // Post media and profile pictures: presigned URLs of the MinIO host, the same one for dev and prod (bucket differs)
 export const MEDIA_ORIGIN = "https://infra-minio.rizkysiregar.my.id";
+// The chat service (Marpokat) is on a sibling host of the API that differs per environment (api-dev-marpokat, api-marpokat), while
+// the image is the same everywhere: REST and WebSocket may go to any host of this domain.
+export const CHAT_ORIGINS = ["https://*.rizkysiregar.my.id", "wss://*.rizkysiregar.my.id"];
 // what Firebase Messaging calls to register a browser for web push (the push itself arrives through the browser)
 export const PUSH_ORIGINS = [
   "https://firebaseinstallations.googleapis.com",
@@ -55,6 +58,7 @@ export function contentSecurityPolicy(scriptHashes, { sentryDsn } = {}) {
     [
       "connect-src 'self'",
       MEDIA_ORIGIN,
+      ...CHAT_ORIGINS,
       ...PUSH_ORIGINS,
       GOOGLE_SIGN_IN,
       CLOUDFLARE_ANALYTICS.connect,
