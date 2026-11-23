@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 import { ApiError } from "~/api/errors";
 import { useSession } from "~/api/session";
+import { useChatEnabled } from "~/features/app-config";
 
 import { fetchChatCredentials, type ChatCredentials } from "./api";
 import { createChatClient } from "./client";
@@ -22,21 +23,25 @@ export function useChatAvailable(): boolean {
 }
 
 /**
- * Connects the signed-in user to the chat service. Chat is optional: when the backend cannot give a token (503, the
- * service is off) the rest of the app works and the chat entries stay hidden.
+ * Connects the signed-in user to the chat service. Chat is optional: while an admin has it switched off
+ * (feature.chat.enabled) nothing connects, and when the backend cannot give a token (403 switched off, 503 the service
+ * is off) the rest of the app works and the chat entries stay hidden.
  */
 export function ChatProvider({ children }: { children: ReactNode }) {
   const signedIn = useSession((state) => state.status === "authenticated");
+  const chatEnabled = useChatEnabled() === true;
   const credentials = useQuery({
     queryKey: ["chat", "credentials"],
     queryFn: ({ signal }) => fetchChatCredentials(signal),
-    enabled: signedIn,
+    enabled: signedIn && chatEnabled,
     staleTime: Infinity,
     gcTime: 0,
-    retry: (count, error) => !(error instanceof ApiError && error.status === 503) && count < 2,
+    retry: (count, error) =>
+      !(error instanceof ApiError && (error.status === 503 || error.status === 403)) && count < 2,
   });
 
-  if (!credentials.data) {
+  // switched off while connected: unmounting the client closes its connection
+  if (!chatEnabled || !credentials.data) {
     return <ClientContext.Provider value={null}>{children}</ClientContext.Provider>;
   }
   // keyed by user: a different account in the same shell gets a client of its own

@@ -202,4 +202,45 @@ describe("chat", () => {
 
     expect(await screen.findByText("hi ani")).toBeInTheDocument();
   });
+  it("is hidden and never connects while an admin has chat switched off", async () => {
+    chatIsUp();
+    let tokenAsked = false;
+    server.use(
+      http.get(api("/config/client"), () => ok({ features: { chat: false } })),
+      http.post(api("/chat/token"), () => {
+        tokenAsked = true;
+        return ok({});
+      }),
+    );
+    renderApp("/messages");
+
+    // the messages page sends the user to the home feed, and the menu has no messages entry
+    expect(await screen.findAllByRole("link", { name: "Home" })).not.toHaveLength(0);
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: /^Messages/ })).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText("Chat is not available")).not.toBeInTheDocument();
+    expect(tokenAsked).toBe(false);
+    expect(FakeSocket.current).toBeNull();
+    expect(localStorage.getItem("narrativ:feature:chat")).toBe("false");
+  });
+
+  it("hides the message button on profiles while an admin has chat switched off", async () => {
+    // the chat service itself is up: only the switch keeps the button away
+    chatIsUp();
+    server.use(
+      http.get(api("/config/client"), () => ok({ features: { chat: false } })),
+      http.get(api("/users/by-username/budi"), () =>
+        ok({ id: "u-budi", username: "budi", fullName: "Budi Santoso" }),
+      ),
+      http.get(api("/users/u-budi/follow-status"), () =>
+        ok({ followerCount: 1, followingCount: 1, isFollowing: false }),
+      ),
+      http.get(api("/posts/users/budi/posts"), () => ok({ content: [], last: true, pageNumber: 0 })),
+    );
+    renderApp("/u/budi");
+
+    expect(await screen.findByText("Budi Santoso")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Message" })).not.toBeInTheDocument();
+  });
 });

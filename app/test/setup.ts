@@ -20,6 +20,8 @@ afterEach(() => {
   server.resetHandlers();
   endSession();
   useSession.setState({ status: "unknown" });
+  // the last known feature switches are kept in the browser: each test starts without them
+  localStorage.removeItem("narrativ:feature:chat");
 });
 
 afterAll(() => {

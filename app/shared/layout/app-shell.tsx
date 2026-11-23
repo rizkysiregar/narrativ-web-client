@@ -19,6 +19,8 @@ interface AppShellProps {
   accountCompact?: ReactNode;
   /** Counts shown on navigation items, e.g. unread notifications. */
   badges?: Partial<Record<NavItem["labelKey"], number>>;
+  /** Navigation items left out, e.g. messages while chat is switched off. */
+  hiddenItems?: readonly NavItem["labelKey"][];
 }
 
 /**
@@ -32,8 +34,10 @@ export function AppShell({
   account,
   accountCompact,
   badges = {},
+  hiddenItems = [],
 }: AppShellProps) {
   const { t } = useTranslation();
+  const navItems = NAV_ITEMS.filter((item) => !hiddenItems.includes(item.labelKey));
 
   return (
     <div className="min-h-dvh md:flex">
@@ -44,7 +48,7 @@ export function AppShell({
           </NavLink>
           <nav aria-label={t("nav.main")}>
             <ul className="flex flex-col gap-1">
-              {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => (
+              {navItems.map(({ to, labelKey, icon: Icon }) => (
                 <li key={to}>
                   <NavLink
                     to={to}
@@ -101,7 +105,7 @@ export function AppShell({
         className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-ink/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
         <ul className="flex justify-around">
-          {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => (
+          {navItems.map(({ to, labelKey, icon: Icon }) => (
             <li key={to}>
               <NavLink
                 to={to}

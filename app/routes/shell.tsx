@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 
 import { useSession } from "~/api/session";
+import { useChatEnabled } from "~/features/app-config";
 import { UserMenu } from "~/features/auth";
 import { ChatProvider, useChatUnread } from "~/features/chat";
 import { useUnreadCount } from "~/features/notifications";
@@ -22,6 +23,7 @@ function ShellFrame() {
   // hooks run before the redirect below, so the badge only asks once there is a session
   const unread = useUnreadCount(status === "authenticated");
   const messages = useChatUnread();
+  const chatEnabled = useChatEnabled() === true;
   usePushSetup(status === "authenticated");
 
   // no session at start-up, a sign-out, or a session that ended (a refused refresh, a ban)
@@ -41,6 +43,7 @@ function ShellFrame() {
       account={<UserMenu />}
       accountCompact={<UserMenu compact />}
       badges={{ "nav.notifications": unread.data ?? 0, "nav.messages": messages }}
+      hiddenItems={chatEnabled ? [] : ["nav.messages"]}
     >
       <Outlet />
     </AppShell>
