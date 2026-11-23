@@ -119,31 +119,3 @@ describe("followers", () => {
     expect(await screen.findByRole("link", { name: /@dodi/ })).toBeInTheDocument();
   });
 });
-
-describe("search", () => {
-  it("finds people by username and keeps the term in the URL", async () => {
-    const terms: (string | null)[] = [];
-    server.use(
-      http.get(api("/users"), ({ request }) => {
-        terms.push(new URL(request.url).searchParams.get("username"));
-        return ok(numberedPage([budi]));
-      }),
-    );
-    renderApp("/search");
-
-    expect(screen.getByText("Find people")).toBeInTheDocument();
-    await user.type(screen.getByRole("searchbox", { name: "Search people" }), "bud");
-
-    const results = await screen.findByRole("list", { name: "Search results" });
-    expect(within(results).getByRole("link", { name: /Budi Santoso/ })).toHaveAttribute("href", "/u/budi");
-    // debounced: one request for the whole word, not one per letter
-    expect(terms).toEqual(["bud"]);
-  });
-
-  it("says when no one matches", async () => {
-    server.use(http.get(api("/users"), () => ok(numberedPage([]))));
-    renderApp("/search?q=zzz");
-
-    expect(await screen.findByText("No one matches “zzz”")).toBeInTheDocument();
-  });
-});

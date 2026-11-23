@@ -65,18 +65,21 @@ export function useFollows(userId: string | undefined, kind: FollowKind) {
   });
 }
 
-/** Active users whose username contains `term` (people the user blocked, or who blocked them, never show up). */
+/**
+ * Active users whose username or name contains `term`, best match first (people the user blocked, or who blocked
+ * them, never show up). The backend needs 2 characters at least.
+ */
 export function useUserSearch(term: string) {
   return useInfiniteQuery({
     queryKey: userKeys.search(term),
     queryFn: ({ pageParam, signal }) =>
       request(
-        api.GET("/users", {
-          params: { query: { username: term, page: pageParam, size: PAGE_SIZE } },
+        api.GET("/users/search", {
+          params: { query: { q: term, page: pageParam, size: PAGE_SIZE } },
           signal,
         }),
       ),
-    enabled: term.length > 0,
+    enabled: term.length >= 2,
     ...pagePaging,
   });
 }

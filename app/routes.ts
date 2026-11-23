@@ -10,6 +10,7 @@ export default [
   // the app itself needs a session
   layout("routes/shell.tsx", [
     index("routes/home.tsx"),
+    // both moved into home; the routes only send old links there
     route("explore", "routes/explore.tsx"),
     route("search", "routes/search.tsx"),
     route("p/:postId", "routes/post.tsx"),

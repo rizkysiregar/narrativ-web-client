@@ -20,7 +20,7 @@ function renderAt(path: string) {
       ),
       children: [
         { path: "/", Component: () => null },
-        { path: "/explore", Component: () => null },
+        { path: "/notifications", Component: () => null },
       ],
     },
     { path: "*", Component: NotFound },
@@ -38,11 +38,11 @@ describe("AppShell", () => {
   });
 
   it("shows the navigation and marks the current page", () => {
-    renderAt("/explore");
+    renderAt("/notifications");
 
     const [sidebar] = screen.getAllByRole("navigation", { name: "Main navigation" });
     expect(sidebar).toBeDefined();
-    expect(screen.getAllByRole("link", { name: "Explore" })[0]).toHaveAttribute("aria-current", "page");
+    expect(screen.getAllByRole("link", { name: "Notifications" })[0]).toHaveAttribute("aria-current", "page");
     expect(screen.getAllByRole("link", { name: "Home" })[0]).not.toHaveAttribute("aria-current");
   });
 

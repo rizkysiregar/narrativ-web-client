@@ -12,6 +12,8 @@ import { postKeys, type FeedPage } from "./keys";
 export { postKeys, type Post, type PostMedia } from "./keys";
 
 const PAGE_SIZE = 10;
+/** The backend refuses shorter search terms (400). */
+export const SEARCH_MIN_LENGTH = 2;
 
 // the feeds page with a cursor: every page answers the one after it, the last page answers none
 const cursorPaging = {
@@ -19,7 +21,7 @@ const cursorPaging = {
   getNextPageParam: (page: FeedPage) => (page.last ? undefined : page.nextCursor),
 };
 
-/** Own posts and those of followed people, newest first, then suggestions (`suggested: true`). */
+/** Own posts and those of followed people, newest first, with suggestions (`suggested: true`) mixed in. */
 export function useHomeFeed() {
   return useInfiniteQuery({
     queryKey: postKeys.feed("home"),
@@ -29,14 +31,18 @@ export function useHomeFeed() {
   });
 }
 
-/** Every post the user may see, recent ones ranked by the backend. */
-export function useExploreFeed() {
+/** Posts whose caption holds every word of `term` (each also as the start of a word), newest first. */
+export function usePostSearch(term: string) {
   return useInfiniteQuery({
-    queryKey: postKeys.feed("explore"),
+    queryKey: postKeys.search(term),
     queryFn: ({ pageParam, signal }) =>
       request(
-        api.GET("/posts/explore", { params: { query: { size: PAGE_SIZE, cursor: pageParam } }, signal }),
+        api.GET("/posts/search", {
+          params: { query: { q: term, size: PAGE_SIZE, cursor: pageParam } },
+          signal,
+        }),
       ),
+    enabled: term.length >= SEARCH_MIN_LENGTH,
     ...cursorPaging,
   });
 }

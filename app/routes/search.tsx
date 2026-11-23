@@ -1,10 +1,8 @@
-import { UserSearch } from "~/features/users";
-import { APP_NAME } from "~/shared/config/env";
+import { Navigate, useSearchParams } from "react-router";
 
-import type { Route } from "./+types/search";
-
-export const meta: Route.MetaFunction = () => [{ title: `Search · ${APP_NAME}` }];
-
+/** Search moved into home; old links (/search?q=...) land there with their term. */
 export default function SearchPage() {
-  return <UserSearch />;
+  const [searchParams] = useSearchParams();
+  const term = searchParams.get("q");
+  return <Navigate to={term ? `/?${new URLSearchParams({ q: term }).toString()}` : "/"} replace />;
 }
