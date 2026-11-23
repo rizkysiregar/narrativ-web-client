@@ -470,11 +470,15 @@ export interface paths {
         };
         /**
          * Admin search/list users
-         * @description status: ACTIVE, BANNED or DELETED (deleted by the user). createdFrom/createdTo are inclusive dates (yyyy-MM-dd) in Asia/Jakarta time.
+         * @description status: ACTIVE, BANNED or DELETED (deleted by the user). createdFrom/createdTo are inclusive dates (yyyy-MM-dd) in Asia/Jakarta time. seeded: true for the accounts an admin created, false for the ones people signed up for
          */
-        get: operations["searchUsers_1"];
+        get: operations["searchUsers"];
         put?: never;
-        post?: never;
+        /**
+         * Admin create a user account
+         * @description For filling the app with first content: a USER account with the sign-up rules but no email OTP, flagged seeded=true and audited (USER_CREATE). It signs in with the given username and password. 400 USERNAME_ALREADY_TAKEN / EMAIL_ALREADY_TAKEN
+         */
+        post: operations["createUser"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1062,7 +1066,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Home feed: your own posts and those of the people you follow, newest first; when they run out, suggestions from explore follow (suggested=true). Pass the nextCursor of a page as cursor to get the next one (page is then ignored and the totals are -1); page keeps working, but only page 0 gets suggestions. */
+        /** Home feed: your own posts and those of the people you follow, newest first, with 3 suggestions (ranked posts of people you do not follow, suggested=true) after every 10 of them; when they run out, suggestions fill the pages. Page 0 and every cursor page are built this way and have no totals (-1): pass the nextCursor of a page as cursor to get the next one (page is then ignored). A numbered page after the first holds the followed posts only. */
         get: operations["getHomePosts"];
         put?: never;
         /** Create a new post: a caption (max 500 chars), up to 5 media uploaded via presigned URL (images and videos can be mixed), or both. A post needs a caption or at least one media. */
@@ -1212,6 +1216,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/posts/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search posts by the words of their caption
+         * @description q is 2 to 50 characters (400 otherwise). Every word of q must be in the caption, each also as the start of a longer word ("kopi sus" finds "kopi susu"); a hashtag counts as a word (#coffee is found by coffee). Newest first, same visibility as explore (no deleted or taken down posts, no blocked people). Page through with nextCursor; totals are -1.
+         */
+        get: operations["searchFeedPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/posts/upload-url": {
         parameters: {
             query?: never;
@@ -1291,7 +1315,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all active users or filter active users by username */
-        get: operations["searchUsers"];
+        get: operations["searchUsers_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1625,6 +1649,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search people by a part of their username or name
+         * @description q is 2 to 50 characters (400 otherwise), case-insensitive. Best match first: the exact username, then usernames and names starting with q, then the rest. Deleted and banned users and either side of a block never show up. No match is an empty page (200), unlike GET /users which answers 404.
+         */
+        get: operations["searchPeople"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1647,7 +1691,7 @@ export interface components {
         };
         AdminAuditLogDTO: {
             /** @enum {string} */
-            action?: "ADMIN_REGISTER" | "USER_UPDATE" | "USER_BAN" | "USER_UNBAN" | "USER_FORCE_LOGOUT" | "POST_TAKEDOWN" | "POST_RESTORE" | "POST_HARD_DELETE" | "COMMENT_TAKEDOWN" | "COMMENT_RESTORE" | "REPORT_RESOLVE" | "REPORT_DISMISS" | "PARAMETER_CREATE" | "PARAMETER_UPDATE" | "PARAMETER_DELETE" | "TEMPLATE_CREATE" | "TEMPLATE_UPDATE" | "TEMPLATE_DELETE" | "BROADCAST_SEND";
+            action?: "ADMIN_REGISTER" | "USER_CREATE" | "USER_UPDATE" | "USER_BAN" | "USER_UNBAN" | "USER_FORCE_LOGOUT" | "POST_TAKEDOWN" | "POST_RESTORE" | "POST_HARD_DELETE" | "COMMENT_TAKEDOWN" | "COMMENT_RESTORE" | "REPORT_RESOLVE" | "REPORT_DISMISS" | "PARAMETER_CREATE" | "PARAMETER_UPDATE" | "PARAMETER_DELETE" | "TEMPLATE_CREATE" | "TEMPLATE_UPDATE" | "TEMPLATE_DELETE" | "BROADCAST_SEND";
             adminId?: string;
             adminUsername?: string;
             /** Format: date-time */
@@ -1691,6 +1735,14 @@ export interface components {
             moderationStatus?: "ACTIVE" | "TAKEN_DOWN";
             parentId?: string;
             postId?: string;
+        };
+        AdminCreateUserRequest: {
+            /** Format: email */
+            email: string;
+            firstName: string;
+            lastName: string;
+            password: string;
+            username: string;
         };
         AdminGrowthDTO: {
             buckets?: components["schemas"]["Bucket"][];
@@ -1815,6 +1867,7 @@ export interface components {
             profileImageUrl?: string;
             /** @enum {string} */
             role?: "USER" | "ADMIN";
+            seeded?: boolean;
             stats?: components["schemas"]["Stats"];
             /** @enum {string} */
             status?: "ACTIVE" | "BANNED";
@@ -4300,13 +4353,14 @@ export interface operations {
             };
         };
     };
-    searchUsers_1: {
+    searchUsers: {
         parameters: {
             query?: {
                 createdFrom?: string;
                 createdTo?: string;
                 email?: string;
                 role?: string;
+                seeded?: boolean;
                 status?: string;
                 username?: string;
             };
@@ -4325,6 +4379,70 @@ export interface operations {
                     "*/*": {
                         code: string;
                         data?: components["schemas"]["PaginatedResponseAdminUserDetailDTO"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCreateUserRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["AdminUserDetailDTO"];
                         message: string;
                     };
                 };
@@ -7159,6 +7277,70 @@ export interface operations {
             };
         };
     };
+    searchFeedPosts: {
+        parameters: {
+            query: {
+                cursor?: string;
+                q: string;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["PaginatedResponsePostFeedResponse"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     createUploadUrl: {
         parameters: {
             query?: never;
@@ -7417,7 +7599,7 @@ export interface operations {
             };
         };
     };
-    searchUsers: {
+    searchUsers_1: {
         parameters: {
             query?: {
                 /** @description Zero-based page index (0..N) */
@@ -8828,6 +9010,70 @@ export interface operations {
                     "*/*": {
                         code: string;
                         data?: components["schemas"]["ProfileImageUploadUrlResponse"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    searchPeople: {
+        parameters: {
+            query: {
+                page?: number;
+                q: string;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["PaginatedResponsePublicUserDTO"];
                         message: string;
                     };
                 };

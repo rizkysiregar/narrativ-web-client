@@ -5,8 +5,6 @@
   "nav": {
     "main": "Navigasi utama",
     "home": "Beranda",
-    "explore": "Jelajahi",
-    "search": "Cari",
     "messages": "Pesan",
     "notifications": "Notifikasi",
     "profile": "Profil",
@@ -132,8 +130,7 @@
   },
   "feed": {
     "homeEmpty": "Beranda Anda masih kosong",
-    "homeEmptyBody": "Ikuti orang lain untuk melihat cerita mereka di sini, atau lihat-lihat di Jelajahi.",
-    "exploreEmpty": "Belum ada yang bisa dijelajahi"
+    "homeEmptyBody": "Ikuti orang lain untuk melihat cerita mereka di sini, atau cari orang dan topik di atas."
   },
   "post": {
     "title": "Postingan",
@@ -189,12 +186,23 @@
     "shareTitle": "@{{username}} di NARRATIV"
   },
   "search": {
-    "label": "Cari orang",
-    "placeholder": "Cari berdasarkan username",
-    "hintTitle": "Temukan orang",
-    "hint": "Ketik username untuk menemukan orang yang ingin Anda ikuti.",
+    "label": "Cari orang dan postingan",
+    "placeholder": "Cari orang atau postingan",
+    "clear": "Hapus pencarian",
+    "hintTitle": "Temukan orang dan postingan",
+    "hint": "Ketik minimal 2 karakter untuk menemukan orang lewat username atau nama, dan postingan lewat kata di caption-nya.",
+    "results": "Hasil pencarian",
+    "tabs": "Jenis hasil",
+    "tab": {
+      "top": "Teratas",
+      "people": "Akun",
+      "posts": "Postingan"
+    },
+    "people": "Akun yang ditemukan",
+    "allPeople": "Lihat semua akun",
     "noResults": "Tidak ada yang cocok dengan “{{term}}”",
-    "results": "Hasil pencarian"
+    "noPeople": "Tidak ada akun yang cocok dengan “{{term}}”",
+    "noPosts": "Tidak ada postingan yang menyebut “{{term}}”"
   },
   "composer": {
     "open": "Buat postingan",

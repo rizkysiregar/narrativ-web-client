@@ -69,7 +69,7 @@ describe("home feed", () => {
 describe("post card", () => {
   it("shows author, time, counts and media", async () => {
     server.use(
-      http.get(api("/posts/explore"), () =>
+      http.get(api("/posts"), () =>
         ok(
           feedPage([
             post({
@@ -90,7 +90,7 @@ describe("post card", () => {
         ),
       ),
     );
-    renderApp("/explore");
+    renderApp("/");
 
     const card = (await screen.findByRole("link", { name: "@budi" })).closest("article") as HTMLElement;
     expect(within(card).getByText("5 min. ago")).toBeInTheDocument();
@@ -109,11 +109,11 @@ describe("post card", () => {
 
   it("marks a taken down post", async () => {
     server.use(
-      http.get(api("/posts/explore"), () =>
+      http.get(api("/posts"), () =>
         ok(feedPage([post({ caption: undefined, moderationStatus: "TAKEN_DOWN", takedownReason: "Spam" })])),
       ),
     );
-    renderApp("/explore");
+    renderApp("/");
 
     expect(await screen.findByText(/taken down by a moderator\. Reason: Spam/)).toBeInTheDocument();
   });
@@ -132,11 +132,9 @@ describe("media gallery", () => {
       url: `https://media.test/${n}.jpg`,
     }));
     server.use(
-      http.get(api("/posts/explore"), () =>
-        ok(feedPage([post({ id: "p9", username: "budi", media: three })])),
-      ),
+      http.get(api("/posts"), () => ok(feedPage([post({ id: "p9", username: "budi", media: three })]))),
     );
-    renderApp("/explore");
+    renderApp("/");
 
     const gallery = await screen.findByRole("region", { name: "Media, 3 items" });
     expect(screen.queryByRole("button", { name: "Previous photo" })).not.toBeInTheDocument();

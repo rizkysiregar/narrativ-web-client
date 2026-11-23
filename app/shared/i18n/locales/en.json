@@ -5,8 +5,6 @@
   "nav": {
     "main": "Main navigation",
     "home": "Home",
-    "explore": "Explore",
-    "search": "Search",
     "messages": "Messages",
     "notifications": "Notifications",
     "profile": "Profile",
@@ -132,8 +130,7 @@
   },
   "feed": {
     "homeEmpty": "Your feed is waiting",
-    "homeEmptyBody": "Follow people to see their stories here, or look around in Explore.",
-    "exploreEmpty": "Nothing to explore yet"
+    "homeEmptyBody": "Follow people to see their stories here, or search for people and topics above."
   },
   "post": {
     "title": "Post",
@@ -189,12 +186,23 @@
     "shareTitle": "@{{username}} on NARRATIV"
   },
   "search": {
-    "label": "Search people",
-    "placeholder": "Search by username",
-    "hintTitle": "Find people",
-    "hint": "Type a username to find people to follow.",
-    "noResults": "No one matches “{{term}}”",
-    "results": "Search results"
+    "label": "Search people and posts",
+    "placeholder": "Search people or posts",
+    "clear": "Clear search",
+    "hintTitle": "Find people and posts",
+    "hint": "Type at least 2 characters to find people by username or name, and posts by the words in their caption.",
+    "results": "Search results",
+    "tabs": "Kinds of results",
+    "tab": {
+      "top": "Top",
+      "people": "People",
+      "posts": "Posts"
+    },
+    "people": "People found",
+    "allPeople": "See all people",
+    "noResults": "Nothing matches “{{term}}”",
+    "noPeople": "No one matches “{{term}}”",
+    "noPosts": "No post mentions “{{term}}”"
   },
   "composer": {
     "open": "Create post",

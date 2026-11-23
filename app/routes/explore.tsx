@@ -1,21 +1,6 @@
-import { useTranslation } from "react-i18next";
+import { Navigate } from "react-router";
 
-import { PostList, useExploreFeed } from "~/features/posts";
-import { APP_NAME } from "~/shared/config/env";
-import { PageHeader } from "~/shared/ui/page-header";
-
-import type { Route } from "./+types/explore";
-
-export const meta: Route.MetaFunction = () => [{ title: `Explore · ${APP_NAME}` }];
-
+/** Explore is gone: home mixes suggestions into the feed. Old links land on home. */
 export default function Explore() {
-  const { t } = useTranslation();
-  const feed = useExploreFeed();
-
-  return (
-    <>
-      <PageHeader title={t("nav.explore")} />
-      <PostList query={feed} empty={{ title: t("feed.exploreEmpty") }} />
-    </>
-  );
+  return <Navigate to="/" replace />;
 }

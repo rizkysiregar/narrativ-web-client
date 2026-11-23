@@ -16,13 +16,14 @@ The development plan, its phases and their progress live in [docs/PLAN.md](docs/
 
 - **Account:** sign in with username and password or with Google, register with an email OTP, reset a forgotten password, edit the
   profile and profile picture, change email (OTP plus current password or Google), delete the account.
-- **Feed:** home feed (your posts and the people you follow, then suggestions) and Explore, with cursor paging.
+- **Feed:** home feed (your posts and the people you follow, with suggestions mixed in), with cursor paging.
+- **Search:** in home, people by username or name and posts by the words of their caption (Top / People / Posts tabs).
 - **Posts:** create a post with a caption and photos or videos, checked against the backend's limits before
   uploading. Files go straight from the browser to object storage with presigned forms. Open a post on its own page
   and share its link.
 - **Conversation:** comments with threaded replies; the author can pin one comment, and a reader can select part of
   the caption to quote it in a comment.
-- **People:** profiles with posts and media tabs, followers and following lists, user search.
+- **People:** profiles with posts and media tabs, followers and following lists.
 - **Notifications:** an inbox grouped by event with an unread badge, and web push through Firebase Cloud Messaging
   (a service worker shows pushes while the tab is closed).
 - **Safety:** block and unblock users, manage blocked accounts, report posts, comments and users.

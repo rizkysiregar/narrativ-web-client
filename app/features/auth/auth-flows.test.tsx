@@ -30,14 +30,14 @@ beforeEach(async () => {
 describe("sign in", () => {
   it("signs in and opens the page that asked for it", async () => {
     const bodies = onPost("/auth/login", () => ok(loginResponse()));
-    renderApp("/explore");
+    renderApp("/notifications");
 
     // no session: the app sends the visitor to the sign-in page and remembers where they were going
     await fill("Username", "ani");
     await fill(/^Password$/, "rahasia123");
     await user.click(screen.getByRole("button", { name: "Sign in" }));
 
-    expect(await screen.findByRole("heading", { name: "Explore" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Notifications" })).toBeInTheDocument();
     expect(bodies).toEqual([{ username: "ani", password: "rahasia123" }]);
   });
 
