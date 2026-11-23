@@ -817,7 +817,7 @@ export interface paths {
         put?: never;
         /**
          * Open the direct message with another user
-         * @description Creates the chat channel of the two users when it does not exist yet and returns its id. A user on either side of a block does not exist for the other (404 USER_NOT_FOUND). 400 for yourself, 503 CHAT_UNAVAILABLE while chat is off or unreachable
+         * @description Creates the chat channel of the two users when it does not exist yet and returns its id. A user on either side of a block does not exist for the other (404 USER_NOT_FOUND). 400 for yourself, 403 CHAT_DISABLED while an admin has chat switched off (feature.chat.enabled), 503 CHAT_UNAVAILABLE while chat is off or unreachable
          */
         post: operations["openDirectMessage"];
         delete?: never;
@@ -837,7 +837,7 @@ export interface paths {
         put?: never;
         /**
          * Token for the chat service (Marpokat)
-         * @description Syncs the user's chat profile and returns a Marpokat user token with the api key and address of this environment. Ask again shortly before expiresAt. 503 CHAT_UNAVAILABLE while chat is off or unreachable
+         * @description Syncs the user's chat profile and returns a Marpokat user token with the api key and address of this environment. Ask again shortly before expiresAt. 403 CHAT_DISABLED while an admin has chat switched off (feature.chat.enabled), 503 CHAT_UNAVAILABLE while chat is off or unreachable
          */
         post: operations["token"];
         delete?: never;
@@ -4942,66 +4942,6 @@ export interface operations {
             };
         };
     };
-    clientConfig: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": {
-                        code: string;
-                        data?: components["schemas"]["ClientConfigResponse"];
-                        message: string;
-                    };
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
     login: {
         parameters: {
             query?: never;
@@ -5790,6 +5730,66 @@ export interface operations {
                     "*/*": {
                         code: string;
                         data?: components["schemas"]["PaginatedResponseCommentResponse"];
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    clientConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        code: string;
+                        data?: components["schemas"]["ClientConfigResponse"];
                         message: string;
                     };
                 };
