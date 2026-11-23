@@ -30,6 +30,10 @@ export const server = setupServer(
       { status: 503 },
     ),
   ),
+  // the admin has chat switched on: the shell asks for the feature switches on every page
+  http.get(api("/config/client"), () =>
+    HttpResponse.json({ code: "200", message: "Success", data: { features: { chat: true } } }),
+  ),
   // no Google client id: the auth and account pages show no Google button unless a test turns it on
   http.get(api("/auth/google-config"), () =>
     HttpResponse.json({ code: "200", message: "Success", data: { enabled: false } }),
