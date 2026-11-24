@@ -2,4 +2,4 @@
 export { pushKeys, usePushSetup, useWebPushConfig } from "./api";
 export { PushPrompt } from "./components/push-prompt";
 export { PushToggle } from "./components/push-toggle";
-export { disablePush } from "./push";
+export { currentPushToken, disablePush, onPushTokenChange } from "./push";
