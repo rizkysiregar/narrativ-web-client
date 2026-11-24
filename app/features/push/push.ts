@@ -1,3 +1,5 @@
+import { isMarpokatPush } from "@rizkysiregar/marpokat-core";
+
 import { api } from "~/api/client";
 import { request } from "~/api/errors";
 import type { Schemas } from "~/api/types";
@@ -12,6 +14,28 @@ const TOKEN_KEY = "narrativ.pushToken";
 // a random id of this browser, so the backend sees one device however often its token rotates
 const DEVICE_KEY = "narrativ.deviceId";
 const loadFirebase = () => import("./firebase");
+
+/** Told the token once it is registered (again), and null with the old one before it is removed. */
+type TokenListener = (token: string | null, previous: string | null) => void | Promise<void>;
+const tokenListeners = new Set<TokenListener>();
+
+/** The push token of this browser while push is on, else null. */
+export function currentPushToken(): string | null {
+  return pushState() === "on" ? readPreference(TOKEN_KEY) : null;
+}
+
+/**
+ * For other services that push to this browser (chat): follows the token. Removal waits for the listeners, so on
+ * sign-out they can still remove it with the session they have.
+ */
+export function onPushTokenChange(listener: TokenListener): () => void {
+  tokenListeners.add(listener);
+  return () => tokenListeners.delete(listener);
+}
+
+async function tellListeners(token: string | null, previous: string | null): Promise<void> {
+  await Promise.allSettled([...tokenListeners].map(async (listener) => listener(token, previous)));
+}
 
 export type PushState = "unsupported" | "denied" | "off" | "on";
 
@@ -78,7 +102,9 @@ async function registerToken(config: WebPushConfig): Promise<void> {
       },
     }),
   );
+  const previous = readPreference(TOKEN_KEY);
   writePreference(TOKEN_KEY, token);
+  await tellListeners(token, previous);
 }
 
 export class PushPermissionError extends Error {
@@ -110,6 +136,7 @@ export async function disablePush(config?: WebPushConfig): Promise<void> {
   if (token === null) {
     return;
   }
+  await tellListeners(null, token);
   await request(api.POST("/devices/deactivate", { body: { pushToken: token } })).catch(() => undefined);
   if (config?.enabled) {
     const { deleteToken, messaging } = await loadFirebase();
@@ -135,6 +162,10 @@ export function onForegroundPush(
       return;
     }
     unsubscribe = onMessage(messaging(firebaseConfig(config)), (payload) => {
+      // chat messages reach an open app over its live connection, with its own banner
+      if (isMarpokatPush(payload.data)) {
+        return;
+      }
       handle(payload.notification?.title ?? "", payload.notification?.body ?? "");
     });
   });

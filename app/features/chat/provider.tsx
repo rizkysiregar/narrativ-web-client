@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { ApiError } from "~/api/errors";
 import { useSession } from "~/api/session";
 import { useChatEnabled } from "~/features/app-config";
+import { currentPushToken, onPushTokenChange } from "~/features/push";
 
 import { fetchChatCredentials, type ChatCredentials } from "./api";
 import { createChatClient } from "./client";
@@ -54,6 +55,34 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
 function Connected({ credentials, children }: { credentials: ChatCredentials; children: ReactNode }) {
   const [client] = useState(() => createChatClient(credentials));
+
+  // the chat service pushes new messages to this browser itself, so it gets the same token as the backend: while
+  // push is on, at every load (tokens rotate) and when it is turned on; turning it off or signing out removes it
+  useEffect(() => {
+    let registered: string | null = null;
+    const register = (token: string) => {
+      if (token === registered) {
+        return;
+      }
+      registered = token;
+      // the client keeps the token and retries by itself; a refused one is only worth ignoring
+      void client.registerPushToken(token).catch(() => undefined);
+    };
+    const initial = currentPushToken();
+    if (initial) {
+      register(initial);
+    }
+    return onPushTokenChange(async (token, previous) => {
+      if (previous && previous !== token) {
+        await client.unregisterPushToken(previous).catch(() => undefined);
+      }
+      if (token) {
+        register(token);
+      } else {
+        registered = null;
+      }
+    });
+  }, [client]);
 
   useEffect(() => {
     return () => {
